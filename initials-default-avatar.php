@@ -12,24 +12,25 @@
 /**
  * Plugin Name: Initials Default Avatar
  * Plugin URI:  https://github.com/lmoffereins/initials-default-avatar
- * Description: Give your WP and default avatars some text and color love - as seen in Gmail.
+ * Description: Give your default avatars some text and random color love (inspired by Gmail).
  * Author:      Laurens Offereins
  * Author URI:  https://github.com/lmoffereins
  * Version:     1.0.0
  * Text Domain: initials-default-avatar
+ * Domain Path: /languages/
  */
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( ! class_exists( 'InitialsDefaultAvatar' ) ) :
+if ( ! class_exists( 'Initials_Default_Avatar' ) ) :
 /**
- * Initials Default Avatar plugin class
+ * The Initials Default Avatar Plugin Class
  *
- * Current services to choose from:
+ * Current services to choose from (options):
  *  - cambelt.co (font, font size)
  *  - dummyimage.com
- *  - getdummyimage.com
+ *  - getdummyimage.com (border color)
  *  - imageholdr.com
  *  - ipsumimage.appspot.com (font size)
  *  - placebox.es (font size)
@@ -37,9 +38,10 @@ if ( ! class_exists( 'InitialsDefaultAvatar' ) ) :
  *   
  * @since 1.0.0
  *
+ * @todo Check whether placeholder service is still live
  * @todo Setup uninstall procedure
  */
-class InitialsDefaultAvatar {
+class Initials_Default_Avatar {
 
 	/**
 	 * Holds initials default avatar name
@@ -50,12 +52,12 @@ class InitialsDefaultAvatar {
 	var $avatar_key = 'initials';
 
 	/**
-	 * Flag for the example intials default avatar
+	 * Flag for the sample intials default avatar
 	 *
 	 * @since 1.0.0
 	 * @var boolean 
 	 */
-	var $picker = false;
+	var $is_sample = false;
 
 	/**
 	 * Holds all users on the page with their avatar params (colors)
@@ -66,15 +68,15 @@ class InitialsDefaultAvatar {
 	var $users = array();
 
 	/**
-	 * Admin notice option name
+	 * Admin notice option key
 	 *
 	 * @since 1.0.0
 	 * @var string 
 	 */
-	var $notice = 'initials-default-avatar_notice';
+	var $notice = '';
 
 	/**
-	 * The selected placeholder service
+	 * The selected placeholder service name
 	 *
 	 * @since 1.0.0
 	 * @var string 
@@ -82,7 +84,7 @@ class InitialsDefaultAvatar {
 	var $service = false;
 
 	/**
-	 * All service's options
+	 * All saved services options
 	 *
 	 * @since 1.0.0
 	 * @var string 
@@ -90,11 +92,32 @@ class InitialsDefaultAvatar {
 	var $options = array();
 
 	/**
+	 * Default font size
+	 *
+	 * @since 1.0.0
+	 * @var int
+	 */
+	var $default_fontsize = 65;
+
+	/**
 	 * Setup plugin and hook main plugin actions
 	 * 
 	 * @since 1.0.0
+	 *
+	 * @uses Initials_Default_Avatar::setup_globals()
+	 * @uses Initials_Default_Avatar::setup_actions()
 	 */
 	public function __construct() {
+		$this->setup_globals();
+		$this->setup_actions();
+	}
+
+	/**
+	 * Define default class globals
+	 *
+	 * @since 1.0.0
+	 */
+	private function setup_globals() {
 
 		// Service
 		$this->service = get_option( 'initials_default_avatar_service' );
@@ -106,13 +129,20 @@ class InitialsDefaultAvatar {
 		if ( empty( $this->options ) )
 			$this->options = array();
 
-		// Admin
-		add_action( 'admin_init',               array( $this, 'hook_admin_message' ) );
-		add_action( 'wp_ajax_' . $this->notice, array( $this, 'admin_store_notice' ) );
-		add_action( 'admin_enqueue_scripts',    array( $this, 'enqueue_scripts'    ) );
+		// Notice
+		$this->notice = 'initials-default-avatar_notice';
+	}
 
-		// Deactivation
-		register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
+	/**
+	 * Setup default actions and filters
+	 *
+	 * @since 1.0.0
+	 *
+	 * @uses add_action()
+	 * @uses add_filter()
+	 * @uses register_deactivation_hook()
+	 */
+	private function setup_actions() {
 
 		// Avatar
 		add_filter( 'get_avatar',      array( $this, 'get_avatar'      ), 10, 5 );
@@ -121,8 +151,17 @@ class InitialsDefaultAvatar {
 		// Store previous avatar option
 		add_filter( 'pre_update_option_avatar_default', array( $this, 'save_previous' ), 10, 2 );
 
+		// Admin
+		add_action( 'admin_init',               array( $this, 'hook_admin_message'  )        );
+		add_action( 'wp_ajax_' . $this->notice, array( $this, 'admin_store_notice'  )        );
+		add_action( 'admin_enqueue_scripts',    array( $this, 'enqueue_scripts'     )        );
+		add_action( 'plugin_action_links',      array( $this, 'plugin_action_links' ), 10, 2 );
+
 		// Settings
-		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
+
+		// Deactivation
+		register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
 	}
 
 	/** Avatar ****************************************************************/
@@ -147,124 +186,108 @@ class InitialsDefaultAvatar {
 	 */
 	public function get_avatar( $avatar, $id_or_email, $size, $default, $alt ) {
 
-		// No need to be here
+		// We are not the default avatar, so no need to be here
 		if ( $this->avatar_key != $default ) 
 			return $avatar;
 
-		// Bail if valid gravatar exists
-		preg_match( '/avatar\/([^&]+)\?/', $avatar, $matches );
-		if ( ! get_option( $this->notice ) && isset( $matches[1] ) && $response = wp_remote_head( sprintf( 'http://%d.gravatar.com/avatar/%s?d=404', hexdec( $matches[1][0] ) % 2, $matches[1] ) ) ) {
-			// if ( is_wp_error( $response ) )
-			// 	var_dump( $response->get_error_messages() );
-			if ( '404' != wp_remote_retrieve_response_code( $response ) && ! is_wp_error( $response ) )
-				return $avatar;
-		}
-
-		// Setup local vars
-		$user_id = $user_name = '';
-
 		// This is the sample avatar
-		if ( $this->picker ) {
-			$user_id      = 'avatar';
-			$user_name    = 'A';
-			$this->picker = false;
+		if ( $this->is_sample ) {
+			$user = array( 'user_id' => 'avatar', 'user_name' => 'avatar' );
 
-		// Identify user by ID
-		} elseif ( is_numeric( $id_or_email ) ) {
-			$id = (int) $id_or_email;
+			// Reset sample flag
+			$this->is_sample = false;
 
-			// Check if user is already stored
-			if ( isset( $this->users[$id] ) ) {
-				$user_id = $id;	
-			} else {
-				$user = get_userdata( $id );
-				if ( $user ) {
-					$user_id   = $user->ID;
-					$user_name = $user->display_name;
-				}				
-			}
-
-		// Identify user by user object
-		} elseif ( is_object( $id_or_email ) ) {
-
-			// No avatar for pingbacks or trackbacks
-			$allowed_comment_types = apply_filters( 'get_avatar_comment_types', array( 'comment' ) );
-			if ( ! empty( $id_or_email->comment_type ) && ! in_array( $id_or_email->comment_type, (array) $allowed_comment_types ) )
-				return false;
-
-			if ( ! empty( $id_or_email->user_id ) ) {
-				$id = (int) $id_or_email->user_id;
-
-				// Check if user is already stored
-				if ( isset( $this->users[$id] ) ) {
-					$user_id = $id;	
-				} else {
-					$user = get_userdata( $id );
-					if ( $user) {
-						$user_id   = $user->ID;
-						$user_name = $user->display_name;
-					}
-				}
-
-			// User is comment author with name
-			} elseif ( ! empty( $id_or_email->comment_author ) ) {
-				$user_id   = ! empty( $id_or_email->comment_author_email ) ? $id_or_email->comment_author_email : $id_or_email->comment_author;
-				$user_name = $id_or_email->comment_author;
-
-			// User is comment author without name
-			} elseif ( ! empty( $id_or_email->comment_author_email ) ) {
-				$user_id   = $user_name = $id_or_email->comment_author_email;
-			}
-
-		// Identify user by email
+		// Identify user and find credentials
 		} else {
-			$user = get_user_by( $id_or_email, 'email' );
-			if ( $user ) {
-				$user_id   = $user->ID;
-				$user_name = $user->display_name;
-			} elseif ( is_email( $id_or_email ) ) {
-				$user_id   = $user_name = $id_or_email;
-			}
+
+			// Bail if this is already a valid gravatar
+			if ( $this->is_valid_gravatar( $avatar ) )
+				return $avatar;
+
+			$user = $this->identify_user( $id_or_email );
 		}
+
+		// Pull out $user_id and $user_name
+		extract( $user, EXTR_OVERWRITE );
 
 		// Bail if user is unidentifiable
 		if ( empty( $user_id ) )
 			return $avatar;
 
 		// Setup user data if it isn't registered yet
-		if ( ! isset( $this->users[$user_id] ) ) {
+		if ( ! $this->has_user_data( $user_id ) ) {
 
-			// Generate user colors
-			$colors = $this->generate_colors( $user_id );
+			// Filter user name to be based on something else
+			$user_name = apply_filters( 'initials_default_avatar_user_name', $user_name, $user_id );
 
-			// Setup and register user avatar data
-			$args = array(
-				'initial' => ucfirst( $this->get_first_char( $user_name ) ),
-				'bgcolor' => $colors['bgcolor'],
-				'color'   => $colors['color']
-			);
-
-			$this->users[$user_id] = apply_filters( 'initials_default_avatar_user', $args, $user_id );
+			// Require user name
+			if ( ! empty( $user_name ) ) {
+				$this->set_user_data( $user_id, $user_name );
+			} else {
+				return $avatar;
+			}
 		}
 
 		// Get user data and placeholder service
-		$user_data = $this->users[$user_id];
-		$service   = $this->get_current_service();
+		$user_setup = $this->get_user_data( $user_id );
+		$service    = $this->get_current_service();
 
 		// Setup avatar image attributes
-		$class     = $this->get_avatar_class( $service, $user_data, $size );
-		$src       = $this->get_avatar_src(   $service, $user_data, $size );
+		$class      = $this->get_avatar_class( $service, $user_setup, $size );
+		$src        = $this->get_avatar_src(   $service, $user_setup, $size );
 
-		// Replace avatar src and class attribute with DOMDocument
-		$dom = new DOMDocument;
-		$dom->loadHTML( $avatar );
-		foreach ( $dom->getElementsByTagName( 'img' ) as $i ) {
-			$i->setAttribute( 'src',   $src   );
-			$i->setAttribute( 'class', $class );
-		}
-		$avatar = $dom->saveHTML( $i );
+		/** 
+		 * Inject avatar string with our class and src
+		 *
+		 * Since we cannot insert an image url with a querystring into the 
+		 * Gravatar's image src default query arg, we just completely rewrite it.
+		 */
+		$avatar     = $this->write_avatar( $avatar, compact( 'class', 'src' ) );
+
+		return apply_filters( 'initials_default_avatar_get_avatar', $avatar, $id_or_email, $size, $alt );
+	}
+
+	/**
+	 * Check if we're not overwriting a valid Gravatar
+	 *
+	 * Since we don't know yet if we're here for a default avatar fallback or 
+	 * Gravatar will match with an existing Gravatar account, we should check 
+	 * which is the case. We cannot know from the <img> src attribute what
+	 * image Gravatar will send us back. So first, we'll ask Gravatar if it
+	 * knows the current email. If not, guaranteed we'll recieve a default.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $avatar HTML avatar image
+	 * @return bool Whether the given avatar is a valid gravatar
+	 */
+	public function is_valid_gravatar( $avatar ) {
+
+		// Bail if user chose to pass this test, but we might be overwritin'
+		if ( get_option( $this->notice ) )
+			return false;
+
+		// Read the {/avatar/email_hash} part from the current avatar
+		preg_match( '/avatar\/([^&]+)\?/', $avatar, $matches );
+
+		// No email_hash found
+		if ( ! isset( $matches[1] ) )
+			return false;
+
+		// Setup 404 url to check what Gravatar knows
+		$url = sprintf( 'http://%d.gravatar.com/avatar/%s?d=404', hexdec( $matches[1][0] ) % 2, $matches[1] );
+
+		// Catch whether the email_hash is recognized by Gravatar
+		$response = wp_remote_head( $url ); 
+
+		// Bail if the user has a valid Gravatar. Expect '200' code if Gravatar knows the email_hash
+		if ( '404' != wp_remote_retrieve_response_code( $response ) && ! is_wp_error( $response ) ) {
+			return true;
 		
-		return $avatar;
+		// No valid Gravatar
+		} else {
+			return false;	
+		}
 	}
 
 	/**
@@ -285,8 +308,9 @@ class InitialsDefaultAvatar {
 			"avatar-{$size}",
 			'photo',
 			'avatar-default', 
-			"avatar-{$this->avatar_key}"
-		) );
+			"avatar-{$this->avatar_key}",
+			"service-{$service['name']}"
+		), $service, $user_data, $size );
 
 		// Create class string
 		$class = implode( ' ', array_unique( $classes ) );
@@ -324,7 +348,7 @@ class InitialsDefaultAvatar {
 
 				// Format has specified position
 				if ( ! empty( $service['format_pos'] ) ) {
-					$args[$service['format_pos']] .= '.' . trim( $args['format'] );
+					$args[$service['format_pos']] .= '.' . $args['format'];
 					unset( $args['format'] );
 				}
 			}
@@ -332,14 +356,24 @@ class InitialsDefaultAvatar {
 
 		// Handle font when requested
 		if ( $this->service_supports( 'font', $service ) ) {
-			$args['font'] = $this->get_service_option('font');
+			$font = $this->get_service_option('font', $service['name'] );
+
+			// Default to first option
+			if ( null === $font && 'select' == $service['options']['font']['type'] )
+				$font = key( $service['options']['font']['options'] );
+
+			$args['font'] = $font;
 		}
 
 		// Handle font size when requested
 		if ( $this->service_supports( 'fontsize', $service ) ) {
 
 			// Get selected font size percentage
-			$perc = $this->get_service_option('fontsize');
+			$perc = $this->get_service_option('fontsize', $service['name'] );
+
+			// Default font size
+			if ( null === $perc )
+				$perc = $this->default_fontsize;
 
 			// Calculate size
 			$size = (int) ceil( $args['height'] * ( $perc / 100 ) );
@@ -354,17 +388,24 @@ class InitialsDefaultAvatar {
 		// Per service
 		switch ( $service['name'] ) {
 
-			case 'getdummyimage.com' :
-				$args['bgcolor'] = '%23' . $args['bgcolor'];
-				$args['color']   = '%23' . $args['color'];
-				break;
-
+			// Cambelt
 			case 'cambelt.co' :
+
+				// Combine background-color with font color
 				$args['color'] = $args['bgcolor'] . ',' . $args['color'];
 				break;
 
+			// Get Dummy Image
 			case 'getdummyimage.com' :
-				// Fix border color with &border=on to activate
+
+				// Colors need encoded hash sign
+				$args['bgcolor'] = '%23' . $args['bgcolor'];
+				$args['color']   = '%23' . $args['color'];
+
+				// Border color
+				$bordercolor = $this->get_service_option( 'bordercolor', $service['name'] );
+				if ( $bordercolor )
+					$args['bordercolor'] = '%23' . $bordercolor . '&border=on';
 				break;
 		}
 
@@ -376,7 +417,7 @@ class InitialsDefaultAvatar {
 
 		// Fill all url variables
 		foreach ( $src_args as $r_key => $r_value ) {
-			$src = preg_replace( '/' . $r_key . '/', $r_value, $src );
+			$src = preg_replace( '/{' . $r_key . '}/', $r_value, $src );
 		}
 
 		// Add url query args
@@ -389,19 +430,58 @@ class InitialsDefaultAvatar {
 	}
 
 	/**
+	 * Return avatar string with inserted attributes
+	 *
+	 * @since 1.0.0
+	 * 
+	 * @param string $avatar HTML avatar string
+	 * @param array $args Image attributes
+	 * @return string Avatar
+	 */
+	public function write_avatar( $avatar = '', $attrs = array() ) {
+
+		// Bail if no valid params
+		if ( empty( $avatar ) || ! is_array( $attrs ) )
+			return false;
+
+		$attrs = (array) apply_filters( 'initials_default_avatar_setup_avatar_attrs', $attrs );
+		$attrs = array_map( 'esc_attr', $attrs );
+
+		// Build DOMDocument
+		$dom = new DOMDocument;
+		$dom->loadHTML( $avatar );
+		$img = '';
+
+		// Get img tag
+		foreach ( $dom->getElementsByTagName( 'img' ) as $img ) {
+
+			// Inject img with all attributes
+			foreach ( $attrs as $key => $value ) {
+				if ( 'src' == $key )
+					$value = esc_url( $value );
+
+				$img->setAttribute( $key, $value );
+			}
+		}
+
+		// Rebuild HTML string
+		if ( ! empty( $img ) )
+			$avatar = $dom->saveHTML();
+		
+		return $avatar;
+	}
+
+	/**
 	 * Return randomly generated avatar colors
 	 * 
 	 * @since 1.0.0
 	 * 
-	 * @uses apply_filters() Calls 'initials_default_avatar_colors' with the hexcode for
-	 *                        the background color and the font color
-	 * 
-	 * @param string|int $user_id User identifier used in $this->users
-	 * @return object With bgcolor and color
+	 * @return array Background color and color
 	 */
-	public function generate_colors( $user_id ) {
+	public function generate_colors() {
 
 		// Only select color values that matter: between 60 and 230
+		// Creating a happy palet
 		$red   = (int) mt_rand( 60, 230 );
 		$blue  = (int) mt_rand( 60, 230 );
 		$green = (int) mt_rand( 60, 230 );
@@ -409,7 +489,7 @@ class InitialsDefaultAvatar {
 		$bgcolor = dechex( $red ) . dechex( $blue ) . dechex( $green );
 		$color   = 'ffffff';
 
-		return apply_filters( 'initials_default_avatar_colors', compact( 'bgcolor', 'color' ), $user_id );
+		return compact( 'bgcolor', 'color' );
 	}
 
 	/**
@@ -433,10 +513,143 @@ class InitialsDefaultAvatar {
 		return apply_filters( 'initials_default_avatar_first_char', $matches[1], $string );
 	}
 
+	/** User ******************************************************************/
+
+	/**
+	 * Return the avatar user ID and user name
+	 *
+	 * User name is derived from the user display name.
+	 *
+	 * @since 1.0.0
+	 * 
+	 * @param mixed $id_or_email
+	 * @return array User ID and user email
+	 */
+	public function identify_user( $id_or_email ) {
+
+		// Setup vars
+		$user_id   = 0;
+		$user_name = '';
+
+		// Identify user by ID
+		if ( is_numeric( $id_or_email ) ) {
+			$id = (int) $id_or_email;
+
+			// Check if user is already stored
+			if ( ! $this->has_user_data( $id ) ) {
+				$user = get_userdata( $id );
+				if ( $user ) {
+					$user_id   = $user->ID;
+					$user_name = $user->display_name;
+				}
+			} else {
+				$user_id = $id;
+			}
+
+		// Identify user by user or comment object
+		} elseif ( is_object( $id_or_email ) ) {
+
+			// No avatar for pingbacks or trackbacks
+			$allowed_comment_types = apply_filters( 'get_avatar_comment_types', array( 'comment' ) );
+			if ( ! empty( $id_or_email->comment_type ) && ! in_array( $id_or_email->comment_type, (array) $allowed_comment_types ) )
+				return false;
+
+			// User object
+			if ( ! empty( $id_or_email->user_id ) ) {
+				$id = (int) $id_or_email->user_id;
+
+				// Check if user is already stored
+				if ( ! $this->has_user_data( $id ) ) {
+					$user = get_userdata( $id );
+					if ( $user) {
+						$user_id   = $user->ID;
+						$user_name = $user->display_name;
+					}
+				} else {
+					$user_id = $id;
+				}
+
+			// User is comment author with name
+			} elseif ( ! empty( $id_or_email->comment_author ) ) {
+				$user_id   = ! empty( $id_or_email->comment_author_email ) ? $id_or_email->comment_author_email : $id_or_email->comment_author;
+				$user_name = $id_or_email->comment_author;
+
+			// User is comment author without name
+			} elseif ( ! empty( $id_or_email->comment_author_email ) ) {
+				$user_id   = $user_name = $id_or_email->comment_author_email;
+			}
+
+		// Identify user by email
+		} else {
+			$user = get_user_by( $id_or_email, 'email' );
+			if ( $user ) {
+				$user_id   = $user->ID;
+				$user_name = $user->display_name;
+			} else {
+				$user_id   = $user_name = $id_or_email;
+			}
+		}
+
+		return compact( 'user_id', 'user_name' );
+	}
+
+	/**
+	 * Return whether the given user is in our users array
+	 *
+	 * @since 1.0.0 
+	 * 
+	 * @param int|string $user_id User ID
+	 * @return bool User is registered
+	 */
+	public function has_user_data( $user_id = 0 ) {
+		return isset( $this->users[$user_id] );
+	}
+
+	/**
+	 * Return the given user setup
+	 *
+	 * @since 1.0.0
+	 * 
+	 * @param int $user_id User ID
+	 * @return array User setup
+	 */
+	public function get_user_data( $user_id = 0 ) {
+		return $this->users[$user_id];
+	}
+
+	/**
+	 * Setup user data for given user
+	 *
+	 * @since 1.0.0
+	 * 
+	 * @param int $user_id User ID
+	 * @param string $user_name User name
+	 */
+	public function set_user_data( $user_id = 0, $user_name = '' ) {
+
+		// Could not identify user
+		if ( empty( $user_id ) || empty( $user_name ) )
+			return;
+
+		// Generate user colors
+		$colors  = $this->generate_colors();
+		$initial = $this->get_first_char( $user_name );
+
+		// Setup and filter user avatar data
+		$data = apply_filters( 'initials_default_avatar_user_data', array(
+			'initial' => ucfirst( $initial ),
+			'bgcolor' => $colors['bgcolor'],
+			'color'   => $colors['color']
+		), $user_id, $user_name );
+
+		// Store data
+		$this->users[$user_id] = $data;
+	}
+
 	/** Admin *****************************************************************/
 
 	/**
-	 * Alert when system cannot connect to Gravatar.com
+	 * Hook admin error when system cannot connect to Gravatar.com
 	 *
 	 * @since 1.0.0
 	 *
@@ -452,7 +665,7 @@ class InitialsDefaultAvatar {
 
 		$user = get_userdata( get_current_user_id() );
 
-		// Check if user can connect to Gravatar.com
+		// Check if the system can connect to Gravatar.com
 		if ( $response = wp_remote_head( sprintf( 'http://%d.gravatar.com/avatar/%s?d=404', hexdec( $user->user_email ) % 2, md5( $user->user_email ) ) ) ) {
 			
 			// Connection failed
@@ -472,7 +685,7 @@ class InitialsDefaultAvatar {
 		<div id="initials-default-avatar_notice">
 			<div id="initials-default-avatar_note1" class="error">
 				<p>
-					<?php _e("It seems that your site cannot connect to gravatar.com to check user profiles. Note that Initials Default Avatar may overwrite a users gravatar displaying a default avatar.", 'initials-default-avatar'); ?>
+					<?php _e('It seems that your site cannot connect to gravatar.com to check user profiles. Note that Initials Default Avatar may overwrite a valid gravatar with a default avatar.', 'initials-default-avatar'); ?>
 					<a class="dismiss" href="#"><?php _e('Accept', 'initials-default-avatar'); ?></a><img class="hidden" src="<?php echo admin_url('/images/wpspin_light.gif'); ?>" style="vertical-align: middle; margin-left: 3px;" />
 					<script type="text/javascript">
 						jQuery(document).ready( function($){
@@ -491,7 +704,7 @@ class InitialsDefaultAvatar {
 
 			<div id="initials-default-avatar_note2" class="error hidden">
 				<p>
-					<?php _e('Initials Default Avatar has calls to gravatar.com now disabled. Reactivate the plugin to retry.', 'initials-default-avatar'); ?>
+					<?php _e('Initials Default Avatar has calls to gravatar.com now disabled. Reactivate the plugin to undo.', 'initials-default-avatar'); ?>
 					<a class="close" href="#"><?php _e('Close', 'initials-default-avatar'); ?></a>
 					<script type="text/javascript">
 						jQuery(document).ready( function($){
@@ -520,26 +733,6 @@ class InitialsDefaultAvatar {
 	}
 
 	/**
-	 * Do stuff on deactivation
-	 *
-	 * @since 1.0.0
-	 *
-	 * @uses update_option()
-	 * @uses delete_option()
-	 */
-	public function deactivation() {
-
-		// Remove notice option
-		delete_option( $this->notice );
-
-		// Restore previous avatar default
-		if ( get_option( 'avatar_default' ) == $this->avatar_key ) {
-			update_option( 'avatar_default', get_option( 'initials_default_avatar_previous' ) );
-			delete_option( 'initials_default_avatar_previous' );
-		}
-	}
-
-	/**
 	 * Add Initials to the default avatar alternatives
 	 *
 	 * @since 1.0.0
@@ -549,8 +742,8 @@ class InitialsDefaultAvatar {
 	 */
 	public function avatar_defaults( $defaults ) {
 
-		// Set default avatar picker flag
-		$this->picker = true;
+		// Set default avatar sample flag
+		$this->is_sample = true;
 
 		// Add initials default avatar
 		$defaults[$this->avatar_key] = __('Initials (Generated)', 'initials-default-avatar');
@@ -565,16 +758,35 @@ class InitialsDefaultAvatar {
 	 *
 	 * @uses update_option()
 	 *
-	 * @param string $new Current avatar selection
-	 * @param string $old Previous avatar selection
+	 * @param string $new_value Current avatar selection
+	 * @param string $old_value Previous avatar selection
 	 */
-	public function save_previous( $new, $old ) {
+	public function save_previous( $new_value, $old_value ) {
 
 		// Save the previous avatar selection for later
-		if ( $this->avatar_key == $new && $new !== $old )
-			update_option( 'initials_default_avatar_previous', $old );
+		if ( $this->avatar_key == $new_value && $new_value !== $old_value )
+			update_option( 'initials_default_avatar_previous', $old_value );
 
-		return $new;
+		return $new_value;
+	}
+
+	/**
+	 * Add some to the plugin action links
+	 *
+	 * @since 1.0.0
+	 * 
+	 * @param array $links
+	 * @param string $file Plugin basename
+	 * @return array Links
+	 */
+	public function plugin_action_links( $links, $file ) {
+
+		// Add links to our plugin actions
+		if ( plugin_basename( __FILE__ ) == $file ) {
+			$links['settings'] = '<a href="' . admin_url( 'options-discussion.php' ) . '">' . esc_html__('Settings', 'initials-default-avatar') . '</a>';
+		}
+
+		return $links;
 	}
 
 	/** Settings **************************************************************/
@@ -587,7 +799,7 @@ class InitialsDefaultAvatar {
 	 * @uses register_setting()
 	 * @uses add_settings_field()
 	 */
-	public function admin_init() {
+	public function register_settings() {
 		
 		// Bail if initials default avatar is not selected
 		if ( get_option( 'avatar_default' ) != $this->avatar_key ) 
@@ -597,7 +809,7 @@ class InitialsDefaultAvatar {
 		register_setting( 'discussion', 'initials_default_avatar_service', array( $this, 'sanitize_service' ) );
 		add_settings_field( 'initials-default-avatar-service', __('Initials Default Avatar', 'initials-default-avatar'), array( $this, 'admin_setting_placeholder_service' ), 'discussion', 'avatars' );
 
-		// Service settings
+		// Service options
 		register_setting( 'discussion', 'initials_default_avatar_options', array( $this, 'sanitize_service_options' ) );
 	}
 
@@ -605,10 +817,14 @@ class InitialsDefaultAvatar {
 	 * Enqueue scripts in the admin head on settings pages
 	 *
 	 * @since 1.0.0
+	 *
+	 * @uses wp_register_script()
+	 * @uses wp_enqueue_script()
+	 * @uses wp_enqueue_style()
 	 */
 	public function enqueue_scripts( $hook_suffix ) {
 
-		// Bail if not on the Discussion page
+		// Bail if not on the discussion page
 		if ( 'options-discussion.php' != $hook_suffix )
 			return;
 
@@ -626,28 +842,30 @@ class InitialsDefaultAvatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @uses InitialsDefaultAvatar::placeholder_services()
+	 * @uses Initials_Default_Avatar::placeholder_services()
 	 */
 	public function admin_setting_placeholder_service() {
-		$selected = get_option( 'initials_default_avatar_service' ); ?>
+		$selected = $this->service; ?>
 
-		<label for="initials_default_avatar_service">
-			<select name="initials_default_avatar_service" id="initials-default-avatar-service">
+		<div id="initials-default-avatar">
+			<label for="placeholder-service">
+				<select name="initials_default_avatar_service" id="placeholder-service">
 
-				<option value=""><?php _e('Select a service', 'initials-default-avatar'); ?></option>
-				<?php foreach ( $this->placeholder_services() as $service => $args ) : ?>
+					<option value=""><?php _e('Select a service', 'initials-default-avatar'); ?></option>
+					<?php foreach ( $this->placeholder_services() as $service => $args ) : ?>
 
-					<option value="<?php echo $service; ?>" <?php selected( $selected, $service ); ?>><?php echo $args['title']; ?></option>
+						<option value="<?php echo $service; ?>" <?php selected( $selected, $service ); ?>><?php echo $args['title']; ?></option>
 
-				<?php endforeach; ?>
+					<?php endforeach; ?>
 
-			</select>
-			<?php _e('Select a placeholder service.', 'initials-default-avatar'); ?>
-			<span class="learn-more"><?php printf( __('See %s for more information.', 'initials-default-avatar'), sprintf('<a class="service-url" target="_blank" href="http://%1$s">%1$s</a>', $selected ) ); ?></span>
-		</label>
+				</select>
+				<?php _e('Select a placeholder service.', 'initials-default-avatar'); ?>
+				<span class="learn-more"><?php printf( __('See %s for more information.', 'initials-default-avatar'), sprintf('<a class="service-url" target="_blank" href="http://%1$s">%1$s</a>', $selected ) ); ?></span>
+			</label>
 
-		<?php // Output settings fields for service options ?>
-		<?php $this->admin_setting_service_options(); ?>
+			<?php // Output settings fields for service options ?>
+			<?php $this->admin_setting_service_options(); ?>
+		</div>
 
 	<?php
 	}
@@ -657,25 +875,39 @@ class InitialsDefaultAvatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @uses InitialsDefaultAvatar::placeholder_services()
+	 * @uses Initials_Default_Avatar::placeholder_services()
 	 */
 	public function admin_setting_service_options() {
 
 		// Loop all services if they have options defined
-		foreach ( $this->placeholder_services() as $service => $s_args ) : if ( isset( $s_args['options'] ) ) : ?>
-			<?php $style = ( $this->service != $service ) ? 'style="display:none;"' : ''; ?>
+		foreach ( $this->placeholder_services() as $service => $s_args ) : 
 
-			<div id="initials-default-avatar-service-<?php echo $service; ?>" class="initials-default-avatar-service-options" <?php echo $style; ?>>
+			// Hide non-selected services
+			$style = ( $this->service != $service ) ? 'style="display:none;"' : ''; ?>
+
+			<div id="service-<?php echo $service; ?>" class="service-options" <?php echo $style; ?>>
 				<h4 class="title"><?php _e('Service options', 'initials-default-avatar'); ?></h4>
-	
-				<?php foreach ( $s_args['options'] as $option => $o_args ) : ?>
 
-				<?php $this->admin_setting_service_option_field( $service, $option, $o_args ); ?><br>
+				<div class="avatar-preview" style="float:left; margin-right: 10px;">
+					<?php $user_data = $this->get_user_data( 'avatar', 'avatar' ); ?>
+					<img src="<?php echo $this->get_avatar_src( $s_args, $user_data, 100 ); ?>" class="<?php echo $this->get_avatar_class( $s_args, $user_data, 100 ); ?>" width="100" height="100" />
+				</div>
 
-				<?php endforeach; ?>
+				<?php if ( isset( $s_args['options'] ) ) : ?>
+
+				<div class="options" style="float:left;">
+					<?php foreach ( $s_args['options'] as $option => $o_args ) : ?>
+
+					<?php $this->admin_setting_service_option_field( $service, $option, $o_args ); ?><br>
+
+					<?php endforeach; ?>
+				</div>
+
+				<?php endif; ?>
+
 			</div>
 
-		<?php endif; endforeach;
+		<?php endforeach;
 	}
 
 	/**
@@ -700,12 +932,12 @@ class InitialsDefaultAvatar {
 		// Setup field atts
 		$id    = "initials-default-avatar-options-{$service}-{$field}";
 		$name  = "initials_default_avatar_options[{$service}][{$field}]";
-		$value = $this->get_service_option( $field );
+		$value = $this->get_service_option( $field, $service );
 		if ( empty( $value ) )
 			$value = '';
 		$label = isset( $args['label'] ) ? $args['label'] : '';
 
-		// Font size
+		// Setup font size vars
 		if ( 'fontsize' == $field ) {
 			$label = __('Font size in percentage', 'initials-default-avatar');
 			$args['type'] = 'percentage';
@@ -716,46 +948,52 @@ class InitialsDefaultAvatar {
 
 			case 'select' :
 				$value = esc_attr( $value );
-				$input  = "<select name='$name' id='$id' class=''>";
+				if ( empty( $value ) && $s = $this->placeholder_services( $service ) )
+					$value = key( $s['options'][$field]['options'] );
+
+				$input  = "<select name='$name' id='$id' class='service-option'>";
 				$input .=	'<option>' . __('Select an option', 'initials-default-avatar') . '</option>';
-				foreach ( $args['options'] as $option => $font ) {
-					$input .= "<option value='$option'" . selected( $value, $option, false ) . ">$font</option>";
+				foreach ( $args['options'] as $option => $option_label ) {
+					$input .= "<option value='$option'" . selected( $value, $option, false ) . ">$option_label</option>";
 				}
 				$input .= '</select>';
 				break;
 
 			case 'text' :
 				$value = esc_attr( $value );
-				$input = "<input type='text' name='{$name}' id='{$id}' class='regular-text' value='{$value}' />";
+				$input = "<input type='text' name='{$name}' id='{$id}' class='service-option regular-text' value='{$value}' />";
 				break;
 
 			case 'number'  :
 				$value = esc_attr( $value );
-				$input = "<input type='number' name='{$name}' id='{$id}' class='small-text' value='{$value}' />";
+				$input = "<input type='number' name='{$name}' id='{$id}' class='service-option small-text' value='{$value}' />";
 				break;
 
 			case 'percentage'  :
 				$value = esc_attr( $value );
-				$input = "<input type='number' name='{$name}' id='{$id}' class='small-text' value='{$value}' step='1' min='0' max='100' />";
+				if ( empty( $value ) && 'fontsize' == $field )
+					$value = $this->default_fontsize;
+
+				$input = "<input type='number' name='{$name}' id='{$id}' class='service-option small-text' value='{$value}' step='1' min='0' max='99' />";
 				break;
 
 			case 'textarea' :
 				$value = esc_textarea( $value );
-				$input = "<textarea name='{$name}' id='{$id}' class=''>{$value}</textarea>";
+				$input = "<textarea name='{$name}' id='{$id}' class='service-option'>{$value}</textarea>";
 				break;
 
 			case 'color' :
 				$value = esc_attr( $value );
-				$input = "<input type='text' name='{$name}' id='{$id}' class='ida-wp-color-picker' value='#{$value}' />";
+				$input = "<input type='text' name='{$name}' id='{$id}' class='service-option ida-wp-color-picker' value='#{$value}' />";
 				break;
 
 			default :
-				$input = apply_filters( 'initials_default_avatar_service_option_field_input', '', $service, $field, compact( $args, $id, $name, $value ) );
+				$input = apply_filters( 'initials_default_avatar_service_option_field_input', '', $service, $field, compact( 'args', 'id', 'name', 'value' ) );
 				break;
 		}
 
 		// Setup field with input label
-		$_field = "<label for='{$id}'>{$input} <span class='description'>{$label}</span></label>";
+		$_field = "<label for='{$id}' class='option-{$args['type']}'>{$input} <span class='description'>{$label}</span></label>";
 
 		// Output break, input, label
 		echo apply_filters( 'initials_default_avatar_service_option_field', $_field, $service, $field, $args );
@@ -766,7 +1004,7 @@ class InitialsDefaultAvatar {
 	 *
 	 * @since 1.0.0
 	 * 
-	 * @uses InitialsDefaultAvatar::placeholder_services()
+	 * @uses Initials_Default_Avatar::placeholder_services()
 	 * @param string $input Service selected
 	 * @return string|bool Sanitized input
 	 */
@@ -801,6 +1039,7 @@ class InitialsDefaultAvatar {
 
 			foreach ( $options as $option => $_input ) {
 
+				// Indicate font size option type
 				if ( 'fontsize' == $option )
 					$_service['options'][$option]['type'] = 'percentage';
 
@@ -828,6 +1067,9 @@ class InitialsDefaultAvatar {
 						// 	$_input = $matches[1];
 						// else
 						// 	$_input = false;
+						
+						// Strip hex hash sign
+						$_input = str_replace( '#', '', $_input );
 						break;
 				}
 
@@ -845,7 +1087,7 @@ class InitialsDefaultAvatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @uses InitialsDefaultAvatar::placeholder_services()
+	 * @uses Initials_Default_Avatar::placeholder_services()
 	 * @return array Service
 	 */
 	public function get_current_service() {
@@ -865,10 +1107,10 @@ class InitialsDefaultAvatar {
 		// Setup services
 		$services = (array) apply_filters( 'initials_default_avatar_services', array(
 
-			// Cambelt.co
+			// Cambelt
 			'cambelt.co' => array(
 				'title'      => 'Cambelt',
-				'url'        => 'http://cambelt.co/widthxheight/text',
+				'url'        => 'http://cambelt.co/{width}x{height}/{text}',
 				'format_pos' => false,
 				'query_args' => array(
 					'font'      => 'font',
@@ -927,17 +1169,17 @@ class InitialsDefaultAvatar {
 				),
 			),
 
-			// Dummyimage.com
+			// Dummy Image
 			'dummyimage.com' => array(
 				'title'      => 'Dummy Image',
-				'url'        => 'http://dummyimage.com/widthxheight/bgcolor/color',
+				'url'        => 'http://dummyimage.com/{width}x{height}/{bgcolor}/{color}',
 				'format_pos' => 'height',
 				'query_args' => array(
 					'text' => 'text',
 				),
 			),
 
-			// Getdummyimage.com
+			// Get Dummy Image
 			'getdummyimage.com' => array(
 				'title'      => 'Get Dummy Image',
 				'url'        => 'http://getdummyimage.com/image',
@@ -958,10 +1200,10 @@ class InitialsDefaultAvatar {
 				),
 			),
 
-			// Imageholdr.com
+			// Imageholdr
 			'imageholdr.com' => array(
 				'title'      => 'Imageholdr',
-				'url'        => 'http://imageholdr.com/widthxheight',
+				'url'        => 'http://imageholdr.com/{width}x{height}',
 				'format_pos' => false,
 				'query_args' => array(
 					'background' => 'bgcolor',
@@ -971,10 +1213,10 @@ class InitialsDefaultAvatar {
 				),
 			),
 
-			// Ipsumimage.com
+			// Ipsum Image
 			'ipsumimage.com' => array(
 				'title'      => 'Ipsum Image',
-				'url'        => 'http://ipsumimage.appspot.com/widthxheight',
+				'url'        => 'http://ipsumimage.appspot.com/{width}x{height}',
 				'format_pos' => false,
 				'query_args' => array(
 					'b' => 'bgcolor',
@@ -988,25 +1230,23 @@ class InitialsDefaultAvatar {
 				),
 			),
 
-			// Placebox.es
+			// Placeboxes
 			'placebox.es' => array(
 				'title'      => 'Placeboxes',
-				'url'        => 'http://placebox.es/widthxheight/bgcolor/color/text,fontsize/',
-				'format_pos' => 'height',
+				'url'        => 'http://placebox.es/{width}x{height}/{bgcolor}/{color}/{text},{fontsize}/',
+				'format_pos' => false,
 				'query_args' => array(),
 				'options'    => array(
 					'fontsize',
 				),
 			),
 
-			// Placehold.it
+			// Placehold It
 			'placehold.it' => array(
 				'title'      => 'Placehold It',
-				'url'        => 'http://placehold.it/widthxheight/bgcolor/color',
+				'url'        => 'http://placehold.it/{width}x{height}/{bgcolor}/{color}&text={text}',
 				'format_pos' => 'height',
-				'query_args' => array(
-					'text' => 'text',
-				),
+				'query_args' => array(),
 			),
 
 		) );
@@ -1055,7 +1295,7 @@ class InitialsDefaultAvatar {
 		if ( ! empty( $feature ) ) {
 
 			// Find option value		
-			if ( preg_match( "/{$feature}/", $service['url'] ) || in_array( $feature, $service['query_args'] ) )
+			if ( preg_match( "/\{$feature\}/", $service['url'] ) || in_array( $feature, $service['query_args'] ) )
 				$support = true;
 		}
 		
@@ -1068,25 +1308,75 @@ class InitialsDefaultAvatar {
 	 * @since 1.0.0
 	 * 
 	 * @param string $key Option key
+	 * @param string $service Service name
 	 * @return mixed|bool Value on success, false if not found
 	 */
-	public function get_service_option( $key = '' ) {
+	public function get_service_option( $key = '', $service = '' ) {
+
+		// Default to selected service
+		if ( empty( $service ) )
+			$service = $this->service;
 
 		// Continue if valid key
 		if ( ! empty( $key ) ) {
 
 			// Find option value		
-			if ( isset( $this->options[$this->service][$key] ) )
-				return $this->options[$this->service][$key];
+			if ( isset( $this->options[$service][$key] ) )
+				return $this->options[$service][$key];
 		}
-		
+
 		// Default false
-		return false;
+		return null;
+	}
+
+	/** Utility ***************************************************************/
+
+	/**
+	 * Do stuff on deactivation
+	 *
+	 * @since 1.0.0
+	 *
+	 * @uses update_option()
+	 * @uses delete_option()
+	 */
+	public function deactivation() {
+
+		// Remove notice option
+		delete_option( $this->notice );
+
+		// Fire deactivation hook
+		do_action( 'initials_default_avatar_deactivation' );
+
+		// Restore previous avatar default
+		if ( get_option( 'avatar_default' ) == $this->avatar_key ) {
+			update_option( 'avatar_default', get_option( 'initials_default_avatar_previous' ) );
+			delete_option( 'initials_default_avatar_previous' );
+		}
 	}
 
 }
 
 // Initiate plugin
-$_GLOBALS['initials_default_avatar'] = new InitialsDefaultAvatar;
+$_GLOBALS['initials_default_avatar'] = new Initials_Default_Avatar;
 
 endif; // class_exists
+
+/**
+ * Do stuff on uninstall
+ *
+ * @since 1.0.0
+ *
+ * @uses delete_option()
+ */
+function initials_default_avatar_uninstall() {
+
+	// Remove plugin options
+	foreach ( array( 'initials_default_avatar_service', 'initials_default_avatar_options' ) as $option ) {
+		delete_option( $option );
+	}
+
+	// Fire uninstall hook
+	do_action( 'initials_default_avatar_uninstall' );
+}
+register_uninstall_hook( __FILE__, 'initials_default_avatar_uninstall' );
+
