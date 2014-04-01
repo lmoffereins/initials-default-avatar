@@ -10,14 +10,15 @@
  */
 
 /**
- * Plugin Name: Initials Default Avatar
- * Plugin URI:  https://github.com/lmoffereins/initials-default-avatar
- * Description: Give your default avatars some text and random color love (inspired by Gmail).
- * Author:      Laurens Offereins
- * Author URI:  https://github.com/lmoffereins
- * Version:     1.0.0
- * Text Domain: initials-default-avatar
- * Domain Path: /languages/
+ * Plugin Name:       Initials Default Avatar
+ * Plugin URI:        https://github.com/lmoffereins/initials-default-avatar
+ * Description:       Give your default avatars some text and random color love (inspired by Gmail).
+ * Author:            Laurens Offereins
+ * Author URI:        https://github.com/lmoffereins
+ * Version:           1.0.0
+ * Text Domain:       initials-default-avatar
+ * Domain Path:       /languages/
+ * GitHub Plugin URI: lmoffereins/initials-default-avatar
  */
 
 // Exit if accessed directly
