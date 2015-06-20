@@ -471,8 +471,9 @@ final class Initials_Default_Avatar {
 			$font = $this->get_service_option('font', $service['name'] );
 
 			// Default to first option
-			if ( null === $font && 'select' == $service['options']['font']['type'] )
+			if ( null === $font && 'select' == $service['options']['font']['type'] ) {
 				$font = key( $service['options']['font']['options'] );
+			}
 
 			$args['font'] = $font;
 		}
@@ -484,15 +485,17 @@ final class Initials_Default_Avatar {
 			$perc = $this->get_service_option('fontsize', $service['name'] );
 
 			// Default font size
-			if ( null === $perc )
+			if ( null === $perc ) {
 				$perc = $this->default_fontsize;
+			}
 
 			// Calculate size
 			$size = (int) ceil( $args['height'] * ( $perc / 100 ) );
 
 			// Limit size
-			if ( isset( $opt_args['fontsize'] ) && ! empty( $opt_args['fontsize']['limit'] ) && $size > $opt_args['fontsize']['limit'] )
+			if ( isset( $opt_args['fontsize'] ) && ! empty( $opt_args['fontsize']['limit'] ) && $size > $opt_args['fontsize']['limit'] ) {
 				$size = $limit;
+			}
 
 			$args['fontsize'] = $size;
 		}
@@ -516,8 +519,9 @@ final class Initials_Default_Avatar {
 
 				// Border color
 				$bordercolor = $this->get_service_option( 'bordercolor', $service['name'] );
-				if ( $bordercolor )
+				if ( $bordercolor ) {
 					$args['bordercolor'] = '%23' . $bordercolor . '&border=on';
+				}
 				break;
 		}
 
@@ -534,8 +538,9 @@ final class Initials_Default_Avatar {
 
 		// Add url query args
 		foreach ( $service['query_args'] as $query_key => $value_key ) {
-			if ( isset( $src_args[$value_key] ) )
+			if ( isset( $src_args[$value_key] ) ) {
 				$src = add_query_arg( $query_key, $src_args[$value_key], $src );
+			}
 		}
 
 		return apply_filters( 'initials_default_avatar_avatar_src', $src, $service, $user_data, $size, $args );
@@ -1112,21 +1117,66 @@ final class Initials_Default_Avatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @uses register_setting()
 	 * @uses add_settings_field()
+	 * @uses register_setting()
 	 */
 	public function register_settings() {
-		
-		// Bail if initials default avatar is not selected
-		if ( get_option( 'avatar_default' ) != $this->avatar_key ) 
-			return;
 
-		// Placeholder service
-		register_setting( 'discussion', 'initials_default_avatar_service', array( $this, 'sanitize_service' ) );
-		add_settings_field( 'initials-default-avatar-service', __( 'Initials Default Avatar', 'initials-default-avatar' ), array( $this, 'admin_setting_placeholder_service' ), 'discussion', 'avatars' );
+		// Register settings field
+		add_settings_field( 
+			'initials-default-avatar-service', 
+			__( 'Initials Default Avatar', 'initials-default-avatar' ), 
+			array( $this, 'admin_setting_placeholder_service' ), 
+			'discussion', 
+			'avatars' 
+		);
 
-		// Service options
+		// Register settings: service and service settings.
+		register_setting( 'discussion', 'initials_default_avatar_service', array( $this, 'sanitize_service'         ) );
 		register_setting( 'discussion', 'initials_default_avatar_options', array( $this, 'sanitize_service_options' ) );
+
+		// Enqueue script. See wp-admin/options-discussion.php since WP 4.2.
+		add_action( 'admin_print_footer_scripts', array( $this, 'settings_add_js' ), 9 );
+	}
+
+	/**
+	 * Output JavaScript to bring our field in parity with WP 4.2's discussion js
+	 *
+	 * @since 1.1.0
+	 *
+	 * @see options_discussion_add_js()
+	 */
+	public function settings_add_js() { ?>
+		<script>
+		( function($) {
+			var show_avatars = $( '#show_avatars' ),
+			    avatar_default = $( 'input[name="avatar_default"]' ),
+			    settings_field = $( '#initials-default-avatar' ).parents( 'tr' ).first();
+
+			// Add classes to our field's <tr>
+			settings_field.addClass( function() {
+				var c = 'avatar-settings';
+
+				// Hide field when avatars are not in use
+				if ( ! show_avatars.is( ':checked' ) ) {
+					c += ' hide-if-js';
+				}
+				// Hide field when our default is not selected
+				if ( avatar_default.filter( ':checked' ).val() != '<?php echo $this->avatar_key; ?>' ) {
+					c += ' hidden';
+				}
+
+				return c;
+			});
+
+			// Unhide service settings on default selection
+			avatar_default.change( function() {
+				settings_field.toggleClass( 'hidden', this.value != '<?php echo $this->avatar_key; ?>' );
+			});
+
+		})( jQuery );
+		</script>
+		<?php
 	}
 
 	/**
