@@ -1134,9 +1134,6 @@ final class Initials_Default_Avatar {
 		// Register settings: service and service settings.
 		register_setting( 'discussion', 'initials_default_avatar_service', array( $this, 'sanitize_service'         ) );
 		register_setting( 'discussion', 'initials_default_avatar_options', array( $this, 'sanitize_service_options' ) );
-
-		// Enqueue script. See wp-admin/options-discussion.php since WP 4.2.
-		add_action( 'admin_print_footer_scripts', array( $this, 'settings_add_js' ), 9 );
 	}
 
 	/**
@@ -1169,7 +1166,7 @@ final class Initials_Default_Avatar {
 				return c;
 			});
 
-			// Unhide service settings on default selection
+			// Show service settings on default selection
 			avatar_default.change( function() {
 				settings_field.toggleClass( 'hidden', this.value != '<?php echo $this->avatar_key; ?>' );
 			});
@@ -1233,7 +1230,10 @@ final class Initials_Default_Avatar {
 			<?php $this->admin_setting_service_options(); ?>
 		</div>
 
-	<?php
+		<?php
+
+		// Enqueue script. See wp-admin/options-discussion.php since WP 4.2.
+		add_action( 'admin_print_footer_scripts', array( $this, 'settings_add_js' ), 9 );
 	}
 
 	/**
