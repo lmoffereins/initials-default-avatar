@@ -3,16 +3,14 @@
 /**
  * The Initials Default Avatar Plugin
  *
- * @author Laurens Offereins
- *
  * @package Initials Default Avatar
  * @subpackage Main
  */
 
 /**
  * Plugin Name:       Initials Default Avatar
- * Plugin URI:        https://github.com/lmoffereins/initials-default-avatar
  * Description:       Give your default avatars some text and random color love (inspired by Gmail).
+ * Plugin URI:        https://github.com/lmoffereins/initials-default-avatar
  * Author:            Laurens Offereins
  * Author URI:        https://github.com/lmoffereins
  * Version:           1.0.0
@@ -22,7 +20,7 @@
  */
 
 // Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'Initials_Default_Avatar' ) ) :
 /**
@@ -36,10 +34,19 @@ if ( ! class_exists( 'Initials_Default_Avatar' ) ) :
  *  - ipsumimage.appspot.com (font size)
  *  - placebox.es (font size)
  *  - placehold.it
- *   
+ *
+ * Not supported services
+ *  - lorempixel.com: no color backgrounds
+ *  - placeIMG.com: no color backgrounds
+ *  - fpooimg.com: includes image dimensions as text
+ *  - p-hold.com: no color backgrounds, no text
+ *  - lorempics.com: no text
+ *  - xoart.link: no color backgrounds
+ *
  * @since 1.0.0
  *
  * @todo Check whether placeholder service is still live
+ * @todo Support: fakeimg.pl (font, font size, retina): https://github.com/Rydgel/Fake-images-please
  * @todo Setup uninstall procedure
  */
 class Initials_Default_Avatar {
@@ -1590,4 +1597,3 @@ function initials_default_avatar_uninstall() {
 	do_action( 'initials_default_avatar_uninstall' );
 }
 register_uninstall_hook( __FILE__, 'initials_default_avatar_uninstall' );
-
