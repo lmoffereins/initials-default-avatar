@@ -49,7 +49,7 @@ if ( ! class_exists( 'Initials_Default_Avatar' ) ) :
  * @todo Support: fakeimg.pl (font, font size, retina): https://github.com/Rydgel/Fake-images-please
  * @todo Setup uninstall procedure
  */
-class Initials_Default_Avatar {
+final class Initials_Default_Avatar {
 
 	/**
 	 * Holds initials default avatar name
@@ -108,16 +108,67 @@ class Initials_Default_Avatar {
 	var $default_fontsize = 65;
 
 	/**
-	 * Setup plugin and hook main plugin actions
-	 * 
+	 * Setup and return the singleton pattern
+	 *
 	 * @since 1.0.0
 	 *
 	 * @uses Initials_Default_Avatar::setup_globals()
 	 * @uses Initials_Default_Avatar::setup_actions()
+	 * @return The single Initials_Default_Avatar
 	 */
-	public function __construct() {
-		$this->setup_globals();
-		$this->setup_actions();
+	public static function instance() {
+
+		// Store instance locally
+		static $instance = null;
+
+		if ( null === $instance ) {
+			$instance = new Initials_Default_Avatar;
+			$instance->setup_globals();
+			$instance->setup_actions();
+		}
+
+		return $instance;
+	}
+
+	/**
+	 * Prevent the plugin class from being loaded more than once
+	 */
+	private function __construct() { /* Nothing to do */ }
+
+	/** Private methods *************************************************/
+
+	/**
+	 * Setup default class globals
+	 *
+	 * @since 1.0.0
+	 */
+	private function setup_globals() {
+
+		/** Versions **********************************************************/
+
+		$this->version      = '1.0.0';
+
+		/** Paths *************************************************************/
+
+		// Setup some base path and URL information
+		$this->file         = __FILE__;
+		$this->basename     = plugin_basename( $this->file );
+		$this->plugin_dir   = plugin_dir_path( $this->file );
+		$this->plugin_url   = plugin_dir_url ( $this->file );
+
+		// Includes
+		$this->includes_dir = trailingslashit( $this->plugin_dir . 'includes' );
+		$this->includes_url = trailingslashit( $this->plugin_url . 'includes' );
+
+		// Languages
+		$this->lang_dir     = trailingslashit( $this->plugin_dir . 'languages' );
+
+		/** Misc **************************************************************/
+
+		$this->extend       = new stdClass();
+		$this->domain       = 'initials-default-avatar';
+
+		$this->define_class_globals();
 	}
 
 	/**
@@ -125,17 +176,19 @@ class Initials_Default_Avatar {
 	 *
 	 * @since 1.0.0
 	 */
-	private function setup_globals() {
+	private function define_class_globals() {
 
-		// Service
+		// Selected service
 		$this->service = get_option( 'initials_default_avatar_service' );
-		if ( empty( $this->service ) )
+		if ( empty( $this->service ) ) {
 			$this->service = key( $this->placeholder_services() );
+		}
 
 		// Options
 		$this->options = get_option( 'initials_default_avatar_options' );
-		if ( empty( $this->options ) )
+		if ( empty( $this->options ) ) {
 			$this->options = array();
+		}
 
 		// Notice
 		$this->notice = 'initials-default-avatar_notice';
@@ -151,6 +204,9 @@ class Initials_Default_Avatar {
 	 * @uses register_deactivation_hook()
 	 */
 	private function setup_actions() {
+
+		// Load textdomain
+		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 
 		// Avatar
 		add_filter( 'get_avatar',                       array( $this, 'get_avatar'          ), 10, 5 );
@@ -172,6 +228,43 @@ class Initials_Default_Avatar {
 
 		// Deactivation
 		register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
+	}
+
+	/** Plugin **********************************************************/
+
+	/**
+	 * Load the translation file for current language. Checks the languages
+	 * folder inside the plugin first, and then the default WordPress
+	 * languages folder.
+	 *
+	 * Note that custom translation files inside the plugin folder will be
+	 * removed on plugin updates. If you're creating custom translation
+	 * files, please use the global language folder.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @uses apply_filters() Calls 'plugin_locale' with {@link get_locale()} value
+	 * @uses load_textdomain() To load the textdomain
+	 * @uses load_plugin_textdomain() To load the textdomain
+	 */
+	public function load_textdomain() {
+
+		// Traditional WordPress plugin locale filter
+		$locale        = apply_filters( 'plugin_locale', get_locale(), $this->domain );
+		$mofile        = sprintf( '%1$s-%2$s.mo', $this->domain, $locale );
+
+		// Setup paths to current locale file
+		$mofile_local  = $this->lang_dir . $mofile;
+		$mofile_global = WP_LANG_DIR . '/initials-default-avatar/' . $mofile;
+
+		// Look in global /wp-content/languages/initials-default-avatar folder
+		load_textdomain( $this->domain, $mofile_global );
+
+		// Look in local /wp-content/plugins/initials-default-avatar/languages/ folder
+		load_textdomain( $this->domain, $mofile_local );
+
+		// Look in global /wp-content/languages/plugins/
+		load_plugin_textdomain( $this->domain );
 	}
 
 	/** Avatar ****************************************************************/
@@ -1571,29 +1664,20 @@ class Initials_Default_Avatar {
 			delete_option( 'initials_default_avatar_previous' );
 		}
 	}
-
 }
-
-// Initiate plugin
-$_GLOBALS['initials_default_avatar'] = new Initials_Default_Avatar;
-
-endif; // class_exists
 
 /**
- * Do stuff on uninstall
+ * Return single instance of this main plugin class
  *
  * @since 1.0.0
- *
- * @uses delete_option()
+ * 
+ * @return Initials_Default_Avatar
  */
-function initials_default_avatar_uninstall() {
-
-	// Remove plugin options
-	foreach ( array( 'initials_default_avatar_service', 'initials_default_avatar_options' ) as $option ) {
-		delete_option( $option );
-	}
-
-	// Fire uninstall hook
-	do_action( 'initials_default_avatar_uninstall' );
+function initials_default_avatar() {
+	return Initials_Default_Avatar::instance();
 }
-register_uninstall_hook( __FILE__, 'initials_default_avatar_uninstall' );
+
+// Initiate plugin. Keep global for back-compat
+$_GLOBALS['initials_default_avatar'] = initials_default_avatar();
+
+endif; // class_exists
