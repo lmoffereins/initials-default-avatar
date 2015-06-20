@@ -405,8 +405,9 @@ final class Initials_Default_Avatar {
 	public function get_avatar_class( $user_data, $size = 96, $service = array() ) {
 
 		// Default to current service
-		if ( empty( $service ) )
+		if ( empty( $service ) ) {
 			$service = $this->get_current_service();
+		}
 		
 		// Collect avatar classes
 		$classes = apply_filters( 'initials_default_avatar_avatar_class', array(
@@ -437,8 +438,9 @@ final class Initials_Default_Avatar {
 	public function get_avatar_src( $user_data, $size = 96, $service = array() ) {
 
 		// Default to current service
-		if ( empty( $service ) )
+		if ( empty( $service ) ) {
 			$service = $this->get_current_service();
+		}
 
 		// Setup default args
 		$args = array(
@@ -567,16 +569,18 @@ final class Initials_Default_Avatar {
 
 			// Inject img with all attributes
 			foreach ( $attrs as $key => $value ) {
-				if ( 'src' == $key )
+				if ( 'src' == $key ) {
 					$value = esc_url( $value );
+				}
 
 				$img->setAttribute( $key, $value );
 			}
 		}
 
 		// Rebuild HTML string
-		if ( ! empty( $img ) )
+		if ( ! empty( $img ) ) {
 			$avatar = $dom->saveHTML();
+		}
 		
 		return $avatar;
 	}
@@ -980,8 +984,9 @@ final class Initials_Default_Avatar {
 		if ( $response = wp_remote_head( sprintf( 'http://%d.gravatar.com/avatar/%s?d=404', hexdec( $user->user_email ) % 2, md5( $user->user_email ) ) ) ) {
 			
 			// Connection failed
-			if ( is_wp_error( $response ) )
+			if ( is_wp_error( $response ) ) {
 				add_action( 'admin_notices', array( $this, 'admin_notice' ) );		
+			}
 		}
 	}
 
@@ -990,14 +995,13 @@ final class Initials_Default_Avatar {
 	 *
 	 * @since 1.0.0
 	 */
-	public function admin_notice() {
-	?>
+	public function admin_notice() { ?>
 
 		<div id="initials-default-avatar_notice">
 			<div id="initials-default-avatar_note1" class="error">
 				<p>
-					<?php _e('It seems that your site cannot connect to gravatar.com to check user profiles. Note that Initials Default Avatar may overwrite a valid gravatar with a default avatar.', 'initials-default-avatar'); ?>
-					<a class="dismiss" href="#"><?php _e('Accept', 'initials-default-avatar'); ?></a><img class="hidden" src="<?php echo admin_url('/images/wpspin_light.gif'); ?>" style="vertical-align: middle; margin-left: 3px;" />
+					<?php _e( 'It seems that your site cannot connect to gravatar.com to check user profiles. Note that Initials Default Avatar may overwrite a valid gravatar with a default avatar.', 'initials-default-avatar' ); ?>
+					<a class="dismiss" href="#"><?php _e( 'Accept', 'initials-default-avatar' ); ?></a><img class="hidden" src="<?php echo admin_url('/images/wpspin_light.gif'); ?>" style="vertical-align: middle; margin-left: 3px;" />
 					<script type="text/javascript">
 						jQuery(document).ready( function($){
 							var $this = $('#initials-default-avatar_note1');
@@ -1015,8 +1019,8 @@ final class Initials_Default_Avatar {
 
 			<div id="initials-default-avatar_note2" class="error hidden">
 				<p>
-					<?php _e('Initials Default Avatar has calls to gravatar.com now disabled. Reactivate the plugin to undo.', 'initials-default-avatar'); ?>
-					<a class="close" href="#"><?php _e('Close', 'initials-default-avatar'); ?></a>
+					<?php _e( 'Initials Default Avatar has calls to gravatar.com now disabled. Reactivate the plugin to undo.', 'initials-default-avatar' ); ?>
+					<a class="close" href="#"><?php _e( 'Close', 'initials-default-avatar' ); ?></a>
 					<script type="text/javascript">
 						jQuery(document).ready( function($){
 							$('#initials-default-avatar_note2').on('click', 'close', function(e){
@@ -1057,7 +1061,7 @@ final class Initials_Default_Avatar {
 		$this->is_sample = true;
 
 		// Add initials default avatar
-		$defaults[$this->avatar_key] = __('Initials (Generated)', 'initials-default-avatar');
+		$defaults[$this->avatar_key] = __( 'Initials (Generated)', 'initials-default-avatar' );
 
 		return $defaults;
 	}
@@ -1075,8 +1079,9 @@ final class Initials_Default_Avatar {
 	public function save_previous( $new_value, $old_value ) {
 
 		// Save the previous avatar selection for later
-		if ( $this->avatar_key == $new_value && $new_value !== $old_value )
+		if ( $this->avatar_key == $new_value && $new_value !== $old_value ) {
 			update_option( 'initials_default_avatar_previous', $old_value );
+		}
 
 		return $new_value;
 	}
@@ -1094,7 +1099,7 @@ final class Initials_Default_Avatar {
 
 		// Add links to our plugin actions
 		if ( plugin_basename( __FILE__ ) == $file ) {
-			$links['settings'] = '<a href="' . admin_url( 'options-discussion.php' ) . '">' . esc_html__('Settings', 'initials-default-avatar') . '</a>';
+			$links['settings'] = '<a href="' . admin_url( 'options-discussion.php' ) . '">' . esc_html__( 'Settings', 'initials-default-avatar' ) . '</a>';
 		}
 
 		return $links;
@@ -1118,7 +1123,7 @@ final class Initials_Default_Avatar {
 
 		// Placeholder service
 		register_setting( 'discussion', 'initials_default_avatar_service', array( $this, 'sanitize_service' ) );
-		add_settings_field( 'initials-default-avatar-service', __('Initials Default Avatar', 'initials-default-avatar'), array( $this, 'admin_setting_placeholder_service' ), 'discussion', 'avatars' );
+		add_settings_field( 'initials-default-avatar-service', __( 'Initials Default Avatar', 'initials-default-avatar' ), array( $this, 'admin_setting_placeholder_service' ), 'discussion', 'avatars' );
 
 		// Service options
 		register_setting( 'discussion', 'initials_default_avatar_options', array( $this, 'sanitize_service_options' ) );
@@ -1162,7 +1167,7 @@ final class Initials_Default_Avatar {
 			<label for="placeholder-service">
 				<select name="initials_default_avatar_service" id="placeholder-service">
 
-					<option value=""><?php _e('Select a service', 'initials-default-avatar'); ?></option>
+					<option value=""><?php _e( 'Select a service', 'initials-default-avatar' ); ?></option>
 					<?php foreach ( $this->placeholder_services() as $service => $args ) : ?>
 
 						<option value="<?php echo $service; ?>" <?php selected( $selected, $service ); ?>><?php echo $args['title']; ?></option>
@@ -1170,8 +1175,8 @@ final class Initials_Default_Avatar {
 					<?php endforeach; ?>
 
 				</select>
-				<?php _e('Select a placeholder service.', 'initials-default-avatar'); ?>
-				<span class="learn-more"><?php printf( __('See %s for more information.', 'initials-default-avatar'), sprintf('<a class="service-url" target="_blank" href="http://%1$s">%1$s</a>', $selected ) ); ?></span>
+				<?php _e( 'Select a placeholder service.', 'initials-default-avatar' ); ?>
+				<span class="learn-more"><?php printf( __( 'See %s for more information.', 'initials-default-avatar' ), sprintf('<a class="service-url" target="_blank" href="http://%1$s">%1$s</a>', $selected ) ); ?></span>
 			</label>
 
 			<?php // Output settings fields for service options ?>
@@ -1197,7 +1202,7 @@ final class Initials_Default_Avatar {
 			$style = ( $this->service != $service ) ? 'style="display:none;"' : ''; ?>
 
 			<div id="service-<?php echo $service; ?>" class="service-options" <?php echo $style; ?>>
-				<h4 class="title"><?php _e('Service options', 'initials-default-avatar'); ?></h4>
+				<h4 class="title"><?php _e( 'Service options', 'initials-default-avatar' ); ?></h4>
 
 				<div class="avatar-preview" style="float:left; margin-right: 10px;">
 					<?php $user_data = $this->get_user_data( 'avatar', 'avatar' ); ?>
@@ -1244,13 +1249,14 @@ final class Initials_Default_Avatar {
 		$id    = "initials-default-avatar-options-{$service}-{$field}";
 		$name  = "initials_default_avatar_options[{$service}][{$field}]";
 		$value = $this->get_service_option( $field, $service );
-		if ( empty( $value ) )
+		if ( empty( $value ) ) {
 			$value = '';
+		}
 		$label = isset( $args['label'] ) ? $args['label'] : '';
 
 		// Setup font size vars
 		if ( 'fontsize' == $field ) {
-			$label = __('Font size in percentage', 'initials-default-avatar');
+			$label = __( 'Font size in percentage', 'initials-default-avatar' );
 			$args['type'] = 'percentage';
 		}
 
@@ -1259,11 +1265,12 @@ final class Initials_Default_Avatar {
 
 			case 'select' :
 				$value = esc_attr( $value );
-				if ( empty( $value ) && $s = $this->placeholder_services( $service ) )
+				if ( empty( $value ) && $s = $this->placeholder_services( $service ) ) {
 					$value = key( $s['options'][$field]['options'] );
+				}
 
 				$input  = "<select name='$name' id='$id' class='service-option'>";
-				$input .=	'<option>' . __('Select an option', 'initials-default-avatar') . '</option>';
+				$input .=	'<option>' . __( 'Select an option', 'initials-default-avatar' ) . '</option>';
 				foreach ( $args['options'] as $option => $option_label ) {
 					$input .= "<option value='$option'" . selected( $value, $option, false ) . ">$option_label</option>";
 				}
@@ -1322,8 +1329,9 @@ final class Initials_Default_Avatar {
 	public function sanitize_service( $input ) {
 
 		// Service selected exists
-		if ( ! $this->placeholder_services( $input ) )
+		if ( ! $this->placeholder_services( $input ) ) {
 			$input = false;
+		}
 
 		return $input;
 	}
@@ -1431,7 +1439,7 @@ final class Initials_Default_Avatar {
 				),
 				'options'    => array(
 					'font'      => array(
-						'label' => __('Font', 'initials-default-avatar'),
+						'label' => __( 'Font', 'initials-default-avatar' ),
 						'type'  => 'select',
 
 						/**
@@ -1505,7 +1513,7 @@ final class Initials_Default_Avatar {
 				),
 				'options'    => array(
 					'bordercolor' => array(
-						'label' => __('Border Color', 'initials-default-avatar'),
+						'label' => __( 'Border Color', 'initials-default-avatar' ),
 						'type'  => 'color',
 					),
 				),
@@ -1555,24 +1563,28 @@ final class Initials_Default_Avatar {
 			// Placehold It
 			'placehold.it' => array(
 				'title'      => 'Placehold It',
-				'url'        => 'http://placehold.it/{width}x{height}/{bgcolor}/{color}&text={text}',
+				'url'        => 'http://placehold.it/{width}x{height}/{bgcolor}/{color}',
 				'format_pos' => 'height',
-				'query_args' => array(),
+				'query_args' => array(
+					'text' => 'text'
+				),
 			),
 
 		) );
 
 		// Set service name argument
-		foreach ( $services as $name => $args )
+		foreach ( $services as $name => $args ) {
 			$services[$name]['name'] = $name;
+		}
 
 		// Return all, one or no service
-		if ( empty( $service ) )
+		if ( empty( $service ) ) {
 			return $services;
-		if ( isset( $services[$service] ) )
+		} elseif ( isset( $services[$service] ) ) {
 			return $services[$service];
-		else
+		} else {
 			return false;
+		}
 	}
 
 	/**
