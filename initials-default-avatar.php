@@ -1570,6 +1570,30 @@ final class Initials_Default_Avatar {
 				),
 			),
 
+			// Fake Images Please
+			'fakeimg.pl' => array(
+				'title'      => 'Fake Images Please',
+				'url'        => 'http://fakeimg.pl/{width}x{height}/{bgcolor}/{color}/',
+				'format_pos' => false,
+				'query_args' => array(
+					'text'      => 'text',
+					'font'      => 'font',
+					'font_size' => 'fontsize'
+				),
+				'options'    => array(
+					'fontsize',
+					'font'      => array(
+						'label' => __( 'Font', 'initials-default-avatar' ),
+						'type'  => 'select',
+						'options' => array(
+							'bebas'   => 'Bebas',
+							'lobster' => 'Lobster',
+							'museo'   => 'Museo',
+						),
+					)
+				),
+			)
+
 		) );
 
 		// Set service name argument
