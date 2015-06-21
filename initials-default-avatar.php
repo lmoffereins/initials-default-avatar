@@ -209,10 +209,18 @@ final class Initials_Default_Avatar {
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 
 		// Avatar
-		add_filter( 'get_avatar',                       array( $this, 'get_avatar'          ), 10, 5 );
-		add_filter( 'avatar_defaults',                  array( $this, 'avatar_defaults'     )        );
-		add_filter( 'pre_update_option_avatar_default', array( $this, 'save_previous'       ), 10, 2 );
-		
+		add_filter( 'get_avatar_url', array( $this, 'get_avatar_url' ), 10, 3 );
+
+		// Settings
+		add_filter( 'avatar_defaults',                  array( $this, 'avatar_defaults'       )        );
+		add_action( 'admin_init',                       array( $this, 'register_settings'     )        );
+		add_filter( 'pre_update_option_avatar_default', array( $this, 'save_previous_default' ), 10, 2 );
+
+		// Back-compat < WP 4.2
+		if ( version_compare( $GLOBALS['wp_version'], '4.2.0', '<' ) ) {
+			add_filter( 'get_avatar', array( $this, 'get_avatar' ), 10, 5 );
+		}
+
 		// Buddypress
 		add_filter( 'bp_core_fetch_avatar',             array( $this, 'bp_get_avatar'       ), 10, 9 );
 		add_filter( 'bp_core_fetch_avatar_url',         array( $this, 'bp_get_avatar'       ), 10, 2 );
@@ -222,9 +230,6 @@ final class Initials_Default_Avatar {
 		add_action( 'wp_ajax_' . $this->notice,         array( $this, 'admin_store_notice'  )        );
 		add_action( 'admin_enqueue_scripts',            array( $this, 'enqueue_scripts'     )        );
 		add_action( 'plugin_action_links',              array( $this, 'plugin_action_links' ), 10, 2 );
-
-		// Settings
-		add_action( 'admin_init',                       array( $this, 'register_settings'   )        );
 
 		// Deactivation
 		register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
@@ -287,66 +292,59 @@ final class Initials_Default_Avatar {
 	 * @param string|boolean $alt Alternative avatar text
 	 * @return string $avatar
 	 */
-	public function get_avatar( $avatar, $id_or_email, $size, $default, $alt ) {
+	public function get_avatar_url( $url, $id_or_email, $args ) {
 
-		// We are not the default avatar, so no need to be here
-		if ( $this->avatar_key != $default ) 
-			return $avatar;
+		// Bail when we're not serving the default
+		if ( $args['default'] != $this->avatar_key )
+			return $url;
+
+		// Bail when gravatar does exist: no default needed
+		if ( ! $this->is_sample && $this->is_valid_gravatar( $url ) )
+			return $url;
+
+		// Define local variable(s)
+		$object_data = (object) array( 
+			'ID'           => 'iad-sample', 
+			'display_name' => _x( 'Sample', 'Sample default avatar display name', 'initials-default-avatar' ) 
+		);
 
 		// This is the sample avatar
-		if ( $this->is_sample ) {
-			$user = array( 'user_id' => 'avatar', 'user_name' => 'avatar' );
-
-			// Reset sample flag
+		if ( true === $this->is_sample ) {
 			$this->is_sample = false;
 
-		// Identify user and find credentials
+		// Find object data
 		} else {
-
-			// Bail if this is already a valid gravatar
-			if ( $this->is_valid_gravatar( $avatar ) )
-				return $avatar;
-
 			$user = $this->identify_user( $id_or_email );
+
+			if ( ! empty( $user['user_id'] ) ) {
+				$object_data->ID = $user['user_id'];
+			}
+			if ( ! empty( $user['user_name'] ) ) {
+				$object_data->display_name = $user['user_name'];
+			}
 		}
 
-		// Pull out $user_id and $user_name
-		extract( $user, EXTR_OVERWRITE );
-
-		// Bail if user is unidentifiable
-		if ( empty( $user_id ) )
-			return $avatar;
-
-		// Setup user data if it isn't registered yet
-		if ( ! $this->has_user_data( $user_id ) ) {
+		// 
+		if ( ! $this->has_user_data( $object_data->ID ) ) {
 
 			// Filter user name to be based on something else
-			$user_name = apply_filters( 'initials_default_avatar_user_name', $user_name, $user_id );
+			$user_name = apply_filters( 'initials_default_avatar_user_name', $object_data->display_name, $object_data->ID );
 
 			// Require user name
 			if ( ! empty( $user_name ) ) {
-				$this->set_user_data( $user_id, $user_name );
+				$this->set_user_data( $object_data->ID, $user_name );
 			} else {
-				return $avatar;
+				return $url;
 			}
 		}
 
 		// Get user data
-		$user_setup = $this->get_user_data( $user_id );
+		$user_setup = $this->get_user_data( $object_data->ID );
 
 		// Setup avatar image attributes
-		$class      = $this->get_avatar_class( $user_setup, $size );
-		$src        = $this->get_avatar_src(   $user_setup, $size );
+		$url = $this->get_avatar_src( $user_setup, $args['size'] );
 
-		/** 
-		 * Inject avatar string with our class and src
-		 *
-		 * Since we cannot insert an image url with a querystring into the 
-		 * Gravatar's image src default query arg, we just completely rewrite it.
-		 */
-		$avatar     = $this->write_avatar( $avatar, compact( 'class', 'src' ) );
-
-		return apply_filters( 'initials_default_avatar_get_avatar', $avatar, $id_or_email, $size, $alt );
+		return $url;
 	}
 
 	/**
@@ -360,7 +358,7 @@ final class Initials_Default_Avatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $avatar HTML avatar image
+	 * @param string $avatar HTML image or image url
 	 * @return bool Whether the given avatar is a valid gravatar
 	 */
 	public function is_valid_gravatar( $avatar ) {
@@ -382,13 +380,13 @@ final class Initials_Default_Avatar {
 		// Catch whether the email_hash is recognized by Gravatar
 		$response = wp_remote_head( $url ); 
 
-		// Bail if the user has a valid Gravatar. Expect '200' code if Gravatar knows the email_hash
-		if ( '404' != wp_remote_retrieve_response_code( $response ) && ! is_wp_error( $response ) ) {
-			return true;
+		// Expect '404' code when Gravatar does not know the email_hash
+		if ( '404' === wp_remote_retrieve_response_code( $response ) || is_wp_error( $response ) ) {
+			return false;
 		
-		// No valid Gravatar
+		// Gravatar is valid
 		} else {
-			return false;	
+			return true;	
 		}
 	}
 
@@ -872,7 +870,7 @@ final class Initials_Default_Avatar {
 			// No avatar for pingbacks or trackbacks
 			$allowed_comment_types = apply_filters( 'get_avatar_comment_types', array( 'comment' ) );
 			if ( ! empty( $id_or_email->comment_type ) && ! in_array( $id_or_email->comment_type, (array) $allowed_comment_types ) )
-				return false;
+				return array();
 
 			// User object
 			if ( ! empty( $id_or_email->user_id ) ) {
@@ -1062,11 +1060,9 @@ final class Initials_Default_Avatar {
 	 */
 	public function avatar_defaults( $defaults ) {
 
-		// Set default avatar sample flag
+		// Add initials default avatar and set sample flag
+		$defaults[ $this->avatar_key ] = __( 'Initials (Generated)', 'initials-default-avatar' );
 		$this->is_sample = true;
-
-		// Add initials default avatar
-		$defaults[$this->avatar_key] = __( 'Initials (Generated)', 'initials-default-avatar' );
 
 		return $defaults;
 	}
@@ -1081,10 +1077,10 @@ final class Initials_Default_Avatar {
 	 * @param string $new_value Current avatar selection
 	 * @param string $old_value Previous avatar selection
 	 */
-	public function save_previous( $new_value, $old_value ) {
+	public function save_previous_default( $new_value, $old_value ) {
 
 		// Save the previous avatar selection for later
-		if ( $this->avatar_key == $new_value && $new_value !== $old_value ) {
+		if ( $this->avatar_key === $new_value && $new_value !== $old_value ) {
 			update_option( 'initials_default_avatar_previous', $old_value );
 		}
 
@@ -1148,9 +1144,10 @@ final class Initials_Default_Avatar {
 		( function($) {
 			var show_avatars = $( '#show_avatars' ),
 			    avatar_default = $( 'input[name="avatar_default"]' ),
+			    avatar_key     = '<?php echo $this->avatar_key; ?>',
 			    settings_field = $( '#initials-default-avatar' ).parents( 'tr' ).first();
 
-			// Add classes to our field's <tr>
+			// Add classes to our field's parent <tr>
 			settings_field.addClass( function() {
 				var c = 'avatar-settings';
 
@@ -1158,8 +1155,9 @@ final class Initials_Default_Avatar {
 				if ( ! show_avatars.is( ':checked' ) ) {
 					c += ' hide-if-js';
 				}
+
 				// Hide field when our default is not selected
-				if ( avatar_default.filter( ':checked' ).val() != '<?php echo $this->avatar_key; ?>' ) {
+				if ( avatar_default.filter( ':checked' ).val() != avatar_key ) {
 					c += ' hidden';
 				}
 
@@ -1168,7 +1166,7 @@ final class Initials_Default_Avatar {
 
 			// Show service settings on default selection
 			avatar_default.change( function() {
-				settings_field.toggleClass( 'hidden', this.value != '<?php echo $this->avatar_key; ?>' );
+				settings_field.toggleClass( 'hidden', this.value != avatar_key );
 			});
 
 		})( jQuery );
@@ -1750,6 +1748,89 @@ final class Initials_Default_Avatar {
 			delete_option( 'initials_default_avatar_previous' );
 		}
 	}
+
+	/** Back-compat ***********************************************************/
+
+	/**
+	 * Return the default avatar when requested
+	 *
+	 * Since external default services besides Gravatar cannot insert their own
+	 * image source, we'll replace the image src and class attributes with DOMDocument.
+	 * 
+	 * @since 1.0.0
+	 *
+	 * @uses apply_filters() Calls 'initials_default_avatar_user' with the user avatar 
+	 *                        params and user identifier
+	 * 
+	 * @param string $avatar Previously created avatar html
+	 * @param string|int|object $id_or_email User identifier or comment object
+	 * @param string|int $size Avatar size
+	 * @param string $default Default avatar name
+	 * @param string|boolean $alt Alternative avatar text
+	 * @return string $avatar
+	 */
+	public function get_avatar( $avatar, $id_or_email, $size, $default, $alt ) {
+
+		// We are not the default avatar, so no need to be here
+		if ( $this->avatar_key != $default ) 
+			return $avatar;
+
+		// This is the sample avatar
+		if ( $this->is_sample ) {
+			$user = array( 'user_id' => 'avatar', 'user_name' => 'avatar' );
+
+			// Reset sample flag
+			$this->is_sample = false;
+
+		// Identify user and find credentials
+		} else {
+
+			// Bail if this is already a valid gravatar
+			if ( $this->is_valid_gravatar( $avatar ) )
+				return $avatar;
+
+			$user = $this->identify_user( $id_or_email );
+		}
+
+		// Pull out $user_id and $user_name
+		extract( $user, EXTR_OVERWRITE );
+
+		// Bail if user is unidentifiable
+		if ( empty( $user_id ) )
+			return $avatar;
+
+		// Setup user data if it isn't registered yet
+		if ( ! $this->has_user_data( $user_id ) ) {
+
+			// Filter user name to be based on something else
+			$user_name = apply_filters( 'initials_default_avatar_user_name', $user_name, $user_id );
+
+			// Require user name
+			if ( ! empty( $user_name ) ) {
+				$this->set_user_data( $user_id, $user_name );
+			} else {
+				return $avatar;
+			}
+		}
+
+		// Get user data
+		$user_setup = $this->get_user_data( $user_id );
+
+		// Setup avatar image attributes
+		$class      = $this->get_avatar_class( $user_setup, $size );
+		$src        = $this->get_avatar_src(   $user_setup, $size );
+
+		/** 
+		 * Inject avatar string with our class and src
+		 *
+		 * Since we cannot insert an image url with a querystring into the 
+		 * Gravatar's image src default query arg, we just completely rewrite it.
+		 */
+		$avatar     = $this->write_avatar( $avatar, compact( 'class', 'src' ) );
+
+		return apply_filters( 'initials_default_avatar_get_avatar', $avatar, $id_or_email, $size, $alt );
+	}
+
 }
 
 /**
