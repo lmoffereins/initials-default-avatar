@@ -124,6 +124,7 @@ final class Initials_Default_Avatar {
 		if ( null === $instance ) {
 			$instance = new Initials_Default_Avatar;
 			$instance->setup_globals();
+			$instance->requires();
 			$instance->setup_actions();
 		}
 
@@ -195,6 +196,15 @@ final class Initials_Default_Avatar {
 	}
 
 	/**
+	 * Include the required files
+	 *
+	 * @since 1.1.0
+	 */
+	private function requires() {
+		require( $this->includes_dir . 'buddypress.php' );
+	}
+
+	/**
 	 * Setup default actions and filters
 	 *
 	 * @since 1.0.0
@@ -221,15 +231,14 @@ final class Initials_Default_Avatar {
 			add_filter( 'get_avatar', array( $this, 'get_avatar' ), 10, 5 );
 		}
 
-		// Buddypress
-		add_filter( 'bp_core_fetch_avatar',             array( $this, 'bp_get_avatar'       ), 10, 9 );
-		add_filter( 'bp_core_fetch_avatar_url',         array( $this, 'bp_get_avatar'       ), 10, 2 );
-
 		// Admin
 		add_action( 'admin_init',                       array( $this, 'hook_admin_message'  )        );
 		add_action( 'wp_ajax_' . $this->notice,         array( $this, 'admin_store_notice'  )        );
 		add_action( 'admin_enqueue_scripts',            array( $this, 'enqueue_scripts'     )        );
 		add_action( 'plugin_action_links',              array( $this, 'plugin_action_links' ), 10, 2 );
+
+		// Extensions
+		add_action( 'bp_init', 'initials_default_avatar_buddypress' );
 
 		// Deactivation
 		register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
@@ -545,50 +554,6 @@ final class Initials_Default_Avatar {
 	}
 
 	/**
-	 * Return avatar string with inserted attributes
-	 *
-	 * @since 1.0.0
-	 * 
-	 * @param string $avatar HTML avatar string
-	 * @param array $args Image attributes
-	 * @return string Avatar
-	 */
-	public function write_avatar( $avatar = '', $attrs = array() ) {
-
-		// Bail if no valid params
-		if ( empty( $avatar ) || ! is_array( $attrs ) )
-			return false;
-
-		$attrs = (array) apply_filters( 'initials_default_avatar_setup_avatar_attrs', $attrs );
-		$attrs = array_map( 'esc_attr', $attrs );
-
-		// Build DOMDocument
-		$dom = new DOMDocument;
-		$dom->loadHTML( $avatar );
-		$img = '';
-
-		// Get img tag
-		foreach ( $dom->getElementsByTagName( 'img' ) as $img ) {
-
-			// Inject img with all attributes
-			foreach ( $attrs as $key => $value ) {
-				if ( 'src' == $key ) {
-					$value = esc_url( $value );
-				}
-
-				$img->setAttribute( $key, $value );
-			}
-		}
-
-		// Rebuild HTML string
-		if ( ! empty( $img ) ) {
-			$avatar = $dom->saveHTML();
-		}
-		
-		return $avatar;
-	}
-
-	/**
 	 * Return randomly generated avatar colors
 	 * 
 	 * @since 1.0.0
@@ -628,207 +593,6 @@ final class Initials_Default_Avatar {
 		preg_match( $pattern, $string, $matches );
 
 		return apply_filters( 'initials_default_avatar_first_char', $matches[1], $string );
-	}
-
-	/** Buddypress ************************************************************/
-
-	/**
-	 * Return default initials avatar for buddypress avatars
-	 *
-	 * @since 1.1.0
-	 * 
-	 * @param string $avatar Avatar string
-	 * @param array $args
-	 * @return string Avatar
-	 */
-	public function bp_get_avatar( $avatar, $args, $item_id = 0, $avatar_dir = '', $css_id = '', $html_width = '', $html_height = '', $avatar_folder_url = '', $avatar_folder_dir = '' ) {
-		$bp = buddypress();
-
-		// We are not the default avatar, so no need to be here
-		if ( $this->avatar_key != $bp->grav_default->{$args['object']} )
-			return $avatar;
-
-		// Not a gravatar or valid gravatar found
-		if ( false === strpos( $avatar, 'gravatar' ) || $this->is_valid_gravatar( $avatar ) )
-			return $avatar;
-
-		// Get all args
-		extract( $args, EXTR_OVERWRITE );
-
-		// Setup user data if it isn't registered yet
-		if ( ! $this->bp_has_item_data( $item_id, $object ) ) {
-
-			$item = $this->bp_identify_item( $item_id, $object );
-
-			// Filter item name to be based on something else
-			$item_name = apply_filters( 'initials_default_avatar_bp_item_name', $item['item_name'], $item_id );
-
-			// Require item name
-			if ( ! empty( $item_name ) ) {
-				$this->bp_set_item_data( $item_id, $item_name, $object );
-			} else {
-				return $avatar;
-			}
-		}
-
-		// Get user data
-		$item_setup = $this->bp_get_item_data( $item_id, $object );
-
-		// Set size var
-		if ( false != $width ) {
-			$size = $width;
-		} elseif ( 'thumb' == $type ) {
-			$size = bp_core_avatar_thumb_width();
-		} else {
-			$size = bp_core_avatar_full_width();
-		}
-
-		// Return <img>
-		if ( true === $html ) {
-
-			// Build avatar <img>
-			$class  = $this->get_avatar_class( $item_setup, $size );
-			$src    = $this->get_avatar_src(   $item_setup, $size );
-
-			/** 
-			 * Inject avatar string with our class and src
-			 *
-			 * Since we cannot insert an image url with a querystring into the 
-			 * Gravatar's image src default query arg, we just completely rewrite it.
-			 */
-			$avatar = $this->write_avatar( $avatar, compact( 'class', 'src' ) );
-
-			return apply_filters( 'initials_default_avatar_bp_get_avatar', $avatar, $args, $item_id, $avatar_dir, $css_id, $html_width, $html_height, $avatar_folder_url, $avatar_folder_dir );
-
-		// Return url
-		} else {
-
-			// Build avatar src
-			$avatar = $this->get_avatar_src( $item_setup, $size );
-
-			return apply_filters( 'initials_default_avatar_bp_get_avatar_url', $avatar, $args );
-		}
-	}
-
-	/**
-	 * Return avatar object ID and object name
-	 *
-	 * @since 1.1.0
-	 * 
-	 * @param int $item_id Item ID
-	 * @param string $object Object type
-	 * @return array object data
-	 */
-	public function bp_identify_item( $item_id, $object ) {
-
-		// What object are we looking at?
-		switch ( $object ) {
-
-			case 'blog' :
-				$data = array( 'item_id' => $item_id, 'item_name' => get_blog_option( $item_id, 'blogname' ) );
-				break;
-
-			case 'group' :
-				if ( bp_is_active( 'groups' ) ) {
-					$data = array( 'item_id' => $item_id, 'item_name' => bp_get_group_name( groups_get_group( array( 'group_id' => $item_id ) ) ) );
-				} else {
-					$data = false;
-				}
-
-				break;
-
-			case 'user' :
-			default :
-				$data = $this->identify_user( $item_id );
-				$data = array( 'item_id' => $data['user_id'], 'item_name' => $data['user_name'] );
-				break;
-		}
-
-		return apply_filters( 'bp_identify_item', $data, $item_id, $object );
-	}
-
-	/**
-	 * Return whether the given item is in our objects array
-	 *
-	 * @since 1.1.0 
-	 * 
-	 * @param int $item_id Item ID
-	 * @param string $object Object type
-	 * @return bool Item is registered
-	 */
-	public function bp_has_item_data( $item_id, $object ) {
-
-		// What object are we looking at?
-		switch ( $object ) {
-
-			case 'user' :
-				$has = isset( $this->users[$item_id] );
-				break;
-
-			default :
-				$has = isset( $this->{$object}[$item_id] );
-				break;
-		}
-
-		return apply_filters( 'bp_has_item_data', $has, $item_id, $object );
-	}
-
-	/**
-	 * Return the given object item setup
-	 *
-	 * @since 1.1.0
-	 * 
-	 * @param int $item_id Item ID
-	 * @return array Object item setup
-	 */
-	public function bp_get_item_data( $item_id, $object ) {
-
-		// What object are we looking at?
-		switch ( $object ) {
-
-			case 'user' :
-				$data = $this->users[$item_id];
-				break;
-
-			default :
-				$data = $this->{$object}[$item_id];
-				break;
-		}
-
-		return apply_filters( 'bp_get_item_data', $data, $item_id, $object );
-	}
-
-	/**
-	 * Setup object item data for given item
-	 *
-	 * @since 1.1.0
-	 * 
-	 * @param int $item_id Item ID
-	 * @param string $item_name Item name
-	 */
-	public function bp_set_item_data( $item_id, $item_name, $object ) {
-
-		// Could not identify user
-		if ( empty( $item_id ) || empty( $item_name ) )
-			return;
-
-		// Generate user colors
-		$colors  = $this->generate_colors();
-		$initial = $this->get_first_char( $item_name );
-
-		// Setup and filter user avatar data
-		$data = apply_filters( 'initials_default_avatar_bp_item_data', array(
-			'initial' => ucfirst( $initial ),
-			'bgcolor' => $colors['bgcolor'],
-			'color'   => $colors['color']
-		), $item_id, $item_name );
-
-		// Manipulate object type name for users
-		if ( 'user' == $object )
-			$object = 'users';
-
-		// Store data
-		$this->{$object}[$item_id] = $data;
 	}
 
 	/** User ******************************************************************/
@@ -1829,6 +1593,50 @@ final class Initials_Default_Avatar {
 		$avatar     = $this->write_avatar( $avatar, compact( 'class', 'src' ) );
 
 		return apply_filters( 'initials_default_avatar_get_avatar', $avatar, $id_or_email, $size, $alt );
+	}
+
+	/**
+	 * Return avatar string with inserted attributes
+	 *
+	 * @since 1.0.0
+	 * 
+	 * @param string $avatar HTML avatar string
+	 * @param array $args Image attributes
+	 * @return string Avatar
+	 */
+	public function write_avatar( $avatar = '', $attrs = array() ) {
+
+		// Bail if no valid params
+		if ( empty( $avatar ) || ! is_array( $attrs ) )
+			return false;
+
+		$attrs = (array) apply_filters( 'initials_default_avatar_setup_avatar_attrs', $attrs );
+		$attrs = array_map( 'esc_attr', $attrs );
+
+		// Build DOMDocument
+		$dom = new DOMDocument;
+		$dom->loadHTML( $avatar );
+		$img = '';
+
+		// Get img tag
+		foreach ( $dom->getElementsByTagName( 'img' ) as $img ) {
+
+			// Inject img with all attributes
+			foreach ( $attrs as $key => $value ) {
+				if ( 'src' == $key ) {
+					$value = esc_url( $value );
+				}
+
+				$img->setAttribute( $key, $value );
+			}
+		}
+
+		// Rebuild HTML string
+		if ( ! empty( $img ) ) {
+			$avatar = $dom->saveHTML();
+		}
+		
+		return $avatar;
 	}
 
 }
