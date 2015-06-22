@@ -52,12 +52,12 @@ if ( ! class_exists( 'Initials_Default_Avatar' ) ) :
 final class Initials_Default_Avatar {
 
 	/**
-	 * Holds initials default avatar name
+	 * Holds initials default avatar key
 	 *
 	 * @since 1.0.0
 	 * @var string 
 	 */
-	var $avatar_key = 'initials';
+	public $avatar_key = 'initials';
 
 	/**
 	 * Flag for the sample intials default avatar
@@ -65,7 +65,7 @@ final class Initials_Default_Avatar {
 	 * @since 1.0.0
 	 * @var boolean 
 	 */
-	var $is_sample = false;
+	public $is_sample = false;
 
 	/**
 	 * Holds all users on the page with their avatar params (colors)
@@ -73,7 +73,7 @@ final class Initials_Default_Avatar {
 	 * @since 1.0.0
 	 * @var array 
 	 */
-	var $users = array();
+	public $avatars = array();
 
 	/**
 	 * Admin notice option key
@@ -81,7 +81,7 @@ final class Initials_Default_Avatar {
 	 * @since 1.0.0
 	 * @var string 
 	 */
-	var $notice = '';
+	public $notice = '';
 
 	/**
 	 * The selected placeholder service name
@@ -89,7 +89,7 @@ final class Initials_Default_Avatar {
 	 * @since 1.0.0
 	 * @var string 
 	 */
-	var $service = false;
+	public $service = false;
 
 	/**
 	 * All saved services options
@@ -97,7 +97,7 @@ final class Initials_Default_Avatar {
 	 * @since 1.0.0
 	 * @var string 
 	 */
-	var $options = array();
+	public $options = array();
 
 	/**
 	 * Default font size
@@ -105,7 +105,7 @@ final class Initials_Default_Avatar {
 	 * @since 1.0.0
 	 * @var int
 	 */
-	var $default_fontsize = 65;
+	public $default_fontsize = 65;
 
 	/**
 	 * Setup and return the singleton pattern
@@ -684,7 +684,7 @@ final class Initials_Default_Avatar {
 	 * @return bool User is registered
 	 */
 	public function has_user_data( $user_id = 0 ) {
-		return isset( $this->users[$user_id] );
+		return isset( $this->avatars[ $user_id ] );
 	}
 
 	/**
@@ -696,7 +696,7 @@ final class Initials_Default_Avatar {
 	 * @return array User setup
 	 */
 	public function get_user_data( $user_id = 0 ) {
-		return $this->users[$user_id];
+		return $this->avatars[ $user_id ];
 	}
 
 	/**
@@ -725,7 +725,7 @@ final class Initials_Default_Avatar {
 		), $user_id, $user_name );
 
 		// Store data
-		$this->users[$user_id] = $data;
+		$this->avatars[ $user_id ] = $data;
 	}
 
 	/** Admin *****************************************************************/
