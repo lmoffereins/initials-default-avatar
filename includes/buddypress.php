@@ -24,7 +24,7 @@ class Initials_Default_Avatar_BuddyPress {
 	 * @since 1.1.0
 	 */
 	public function __construct() {
-		$this->setup_actions();	
+		$this->setup_actions();
 	}
 
 	/** Private methods *************************************************/
@@ -37,226 +37,163 @@ class Initials_Default_Avatar_BuddyPress {
 	private function setup_actions() {
 
 		// Buddypress
-		add_filter( 'bp_core_fetch_avatar',     array( $this, 'bp_get_avatar' ), 10, 9 );
-		add_filter( 'bp_core_fetch_avatar_url', array( $this, 'bp_get_avatar' ), 10, 2 );
+		add_filter( 'bp_core_fetch_avatar',     array( $this, 'get_avatar'     ), 10, 9 );
+		add_filter( 'bp_core_fetch_avatar_url', array( $this, 'get_avatar_url' ), 10, 2 );
+
+		// IDA
+		add_filter( 'initials_default_avatar_user_name', array( $this, 'filter_avatar_name' ), 10, 4 );
 	}
 
 	/** Public methods **************************************************/
 
 	/**
-	 * Return default initials avatar for buddypress avatars
+	 * Filter BuddyPress avatar for our default
 	 *
 	 * @since 1.1.0
 	 * 
-	 * @param string $avatar Avatar string
+	 * @uses Initials_Default_Avatar_BuddyPress::get_avatar_data()
+	 * @uses Initials_Default_Avatar::build_avatar()
+	 *
+	 * @param string $avatar Avatar image html
 	 * @param array $args
-	 * @return string Avatar
+	 * @return string Avatar image html
 	 */
-	public function bp_get_avatar( $avatar, $args, $item_id = 0, $avatar_dir = '', $css_id = '', $html_width = '', $html_height = '', $avatar_folder_url = '', $avatar_folder_dir = '' ) {
-		$bp  = buddypress();
-		$iad = initials_default_avatar();
-
-		// We are not the default avatar, so no need to be here
-		if ( $iad->avatar_key != $bp->grav_default->{$args['object']} )
+	public function get_avatar( $avatar, $args, $item_id, $avatar_dir, $css_id, $html_width, $html_height, $avatar_folder_url, $avatar_folder_dir ) {
+		$data = $this->get_avatar_data( $avatar, $args );
+		if ( empty( $data ) )
 			return $avatar;
 
-		// Not a gravatar or valid gravatar found
-		if ( false === strpos( $avatar, 'gravatar' ) || $iad->is_valid_gravatar( $avatar ) )
-			return $avatar;
+		/** 
+		 * Inject avatar string with our class and src
+		 *
+		 * Since we cannot insert an image url with a querystring into the 
+		 * Gravatar's image src default query arg, we just completely rewrite it.
+		 */
+		$avatar = initials_default_avatar()->build_avatar( $avatar, array( 'src' => $data['url'], 'class' => $data['class'] ) );
 
-		// Get all args
-		extract( $args, EXTR_OVERWRITE );
+		return apply_filters( 'initials_default_avatar_bp_get_avatar', $avatar, $args, $item_id, $avatar_dir, $css_id, $html_width, $html_height, $avatar_folder_url, $avatar_folder_dir );
+	}
 
-		// Setup user data if it isn't registered yet
-		if ( ! $this->bp_has_item_data( $item_id, $object ) ) {
+	/**
+	 * Filter BuddyPress avatar url for our default
+	 *
+	 * @since 1.1.0
+	 *
+	 * @uses Initials_Default_Avatar_BuddyPress::get_avatar_data()
+	 * 
+	 * @param string $url Avatar url
+	 * @param array $args
+	 * @return string Avatar url
+	 */
+	public function get_avatar_url( $url, $args ) {
+		$data = $this->get_avatar_data( $url, $args );
+		if ( empty( $data ) )
+			return $url;
 
-			$item = $this->bp_identify_item( $item_id, $object );
+		// Filter non-html url
+		return apply_filters( 'initials_default_avatar_bp_get_avatar_url', $data['url'], $args );
+	}
 
-			// Filter item name to be based on something else
-			$item_name = apply_filters( 'initials_default_avatar_bp_item_name', $item['item_name'], $item_id );
+	/**
+	 * Return the avatar data for BuddyPress avatars
+	 *
+	 * @since 1.1.0
+	 *
+	 * @uses Initials_Default_Avatar::is_valid_gravatar()
+	 * @uses Initials_Default_Avatar::get_avatar_details()
+	 * @uses Initials_Default_Avatar::get_avatar_url()
+	 * @uses Initials_Default_Avatar::get_avatar_class()
+	 * @uses bp_core_avatar_thumb_width()
+	 * @uses bp_core_avatar_full_width()
+	 * 
+	 * @param string $avatar Avatar
+	 * @param array $args Avatar args
+	 * @return array Avatar data
+	 */
+	public function get_avatar_data( $avatar, $args ) {
+		$ida = initials_default_avatar();
 
-			// Require item name
-			if ( ! empty( $item_name ) ) {
-				$this->bp_set_item_data( $item_id, $item_name, $object );
-			} else {
-				return $avatar;
+		// Bail when we're not serving the avatar default
+		if ( $ida->avatar_key !== buddypress()->grav_default->{$args['object']} )
+			return false;
+
+		// Since the avatar url could have been forged from uploaded images,
+		// we only return a default avatar for failing gravatars. So, bail
+		// when this is not a gravatar or when it is not a valid gravatar.
+		if ( false === strpos( $avatar, 'gravatar.com' ) || $ida->is_valid_gravatar( $avatar ) )
+			return false;
+
+		// Define BP avatar id
+		if ( empty( $args['object'] ) || 'user' === $args['object'] ) {
+			$avatar_id = $args['item_id'];
+		} else {
+			$avatar_id = "bp-{$args['object']}-{$args['item_id']}";
+		}
+
+		// Get avatar details
+		$details = $ida->get_avatar_details( $avatar_id );
+
+		// Set size var
+		if ( false !== $args['width'] ) {
+			$args['size'] = $args['width'];
+		} elseif ( 'thumb' === $args['type'] ) {
+			$args['size'] = bp_core_avatar_thumb_width();
+		} else {
+			$args['size'] = bp_core_avatar_full_width();
+		}
+
+		// Get avatar url and class
+		$data = array(
+			'url'   => $ida->get_avatar_url  ( $details,       $args ),
+			'class' => $ida->get_avatar_class( $args['class'], $args )
+		);
+
+		return $data;
+	}
+
+	/**
+	 * Filter the name of the current avatar
+	 *
+	 * @since 1.1.0
+	 *
+	 * @uses get_blog_option()
+	 * @uses bp_get_group_name()
+	 * 
+	 * @param string $name Avatar name
+	 * @param int|string $avatar_id Avatar ID
+	 * @return string Avatar name
+	 */
+	public function filter_avatar_name( $name, $avatar_id ) {
+
+		// Users are handled by IDA by default.
+		// Should we use bp_core_get_user_displayname()?
+		// Should we provide support for XProfile fields?
+
+		if ( is_string( $avatar_id ) ) {
+
+			// Blog
+			if ( 0 === strpos( $avatar_id, 'bp-blog-' ) ) {
+				$name = get_blog_option( (int) str_replace( 'bp-blog-', '', $avatar_id ), 'blogname' );
+
+			// Group
+			} elseif ( 0 === strpos( $avatar_id, 'bp-group-' ) ) {
+				$name = bp_get_group_name( groups_get_group( array( 'group_id' => (int) str_replace( 'bp-group-', '', $avatar_id ) ) ) );
 			}
 		}
 
-		// Get user data
-		$item_setup = $this->bp_get_item_data( $item_id, $object );
-
-		// Set size var
-		if ( false != $width ) {
-			$size = $width;
-		} elseif ( 'thumb' == $type ) {
-			$size = bp_core_avatar_thumb_width();
-		} else {
-			$size = bp_core_avatar_full_width();
-		}
-
-		// Return <img>
-		if ( true === $html ) {
-
-			// Build avatar <img>
-			$class  = $iad->get_avatar_class( $item_setup, $size );
-			$src    = $iad->get_avatar_src(   $item_setup, $size );
-
-			/** 
-			 * Inject avatar string with our class and src
-			 *
-			 * Since we cannot insert an image url with a querystring into the 
-			 * Gravatar's image src default query arg, we just completely rewrite it.
-			 */
-			$avatar = $iad->write_avatar( $avatar, compact( 'class', 'src' ) );
-
-			return apply_filters( 'initials_default_avatar_bp_get_avatar', $avatar, $args, $item_id, $avatar_dir, $css_id, $html_width, $html_height, $avatar_folder_url, $avatar_folder_dir );
-
-		// Return url
-		} else {
-
-			// Build avatar src
-			$avatar = $iad->get_avatar_src( $item_setup, $size );
-
-			return apply_filters( 'initials_default_avatar_bp_get_avatar_url', $avatar, $args );
-		}
-	}
-
-	/**
-	 * Return avatar object ID and object name
-	 *
-	 * @since 1.1.0
-	 * 
-	 * @param int $item_id Item ID
-	 * @param string $object Object type
-	 * @return array object data
-	 */
-	public function bp_identify_item( $item_id, $object ) {
-		$iad = initials_default_avatar();
-
-		// What object are we looking at?
-		switch ( $object ) {
-
-			case 'blog' :
-				$data = array( 'item_id' => $item_id, 'item_name' => get_blog_option( $item_id, 'blogname' ) );
-				break;
-
-			case 'group' :
-				if ( bp_is_active( 'groups' ) ) {
-					$data = array( 'item_id' => $item_id, 'item_name' => bp_get_group_name( groups_get_group( array( 'group_id' => $item_id ) ) ) );
-				} else {
-					$data = false;
-				}
-
-				break;
-
-			case 'user' :
-			default :
-				$data = $iad->identify_user( $item_id );
-				$data = array( 'item_id' => $data['user_id'], 'item_name' => $data['user_name'] );
-				break;
-		}
-
-		return apply_filters( 'bp_identify_item', $data, $item_id, $object );
-	}
-
-	/**
-	 * Return whether the given item is in our objects array
-	 *
-	 * @since 1.1.0 
-	 * 
-	 * @param int $item_id Item ID
-	 * @param string $object Object type
-	 * @return bool Item is registered
-	 */
-	public function bp_has_item_data( $item_id, $object ) {
-		$iad = initials_default_avatar();
-
-		// What object are we looking at?
-		switch ( $object ) {
-
-			case 'user' :
-				$has = isset( $iad->users[$item_id] );
-				break;
-
-			default :
-				$has = isset( $iad->{$object}[$item_id] );
-				break;
-		}
-
-		return apply_filters( 'bp_has_item_data', $has, $item_id, $object );
-	}
-
-	/**
-	 * Return the given object item setup
-	 *
-	 * @since 1.1.0
-	 * 
-	 * @param int $item_id Item ID
-	 * @return array Object item setup
-	 */
-	public function bp_get_item_data( $item_id, $object ) {
-		$iad = initials_default_avatar();
-
-		// What object are we looking at?
-		switch ( $object ) {
-
-			case 'user' :
-				$data = $iad->users[$item_id];
-				break;
-
-			default :
-				$data = $iad->{$object}[$item_id];
-				break;
-		}
-
-		return apply_filters( 'bp_get_item_data', $data, $item_id, $object );
-	}
-
-	/**
-	 * Setup object item data for given item
-	 *
-	 * @since 1.1.0
-	 * 
-	 * @param int $item_id Item ID
-	 * @param string $item_name Item name
-	 */
-	public function bp_set_item_data( $item_id, $item_name, $object ) {
-		$iad = initials_default_avatar();
-
-		// Could not identify user
-		if ( empty( $item_id ) || empty( $item_name ) )
-			return;
-
-		// Generate user colors
-		$colors  = $iad->generate_colors();
-		$initial = $iad->get_first_char( $item_name );
-
-		// Setup and filter user avatar data
-		$data = apply_filters( 'initials_default_avatar_bp_item_data', array(
-			'initial' => ucfirst( $initial ),
-			'bgcolor' => $colors['bgcolor'],
-			'color'   => $colors['color']
-		), $item_id, $item_name );
-
-		// Manipulate object type name for users
-		if ( 'user' == $object )
-			$object = 'users';
-
-		// Store data
-		$iad->{$object}[$item_id] = $data;
+		return $name;
 	}
 }
 
 /**
  * Return single instance of this main plugin class
  *
- * @since 1.0.0
+ * @since 1.1.0
  * 
  * @return Initials_Default_Avatar_BuddyPress
  */
 function initials_default_avatar_buddypress() {
-	initials_default_avatar()->extend->bp = new Initials_Default_Avatar_BuddyPress;
+	initials_default_avatar()->extend->buddypress = new Initials_Default_Avatar_BuddyPress;
 }
 
 endif; // class_exists
