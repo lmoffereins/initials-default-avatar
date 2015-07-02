@@ -1307,17 +1307,6 @@ final class Initials_Default_Avatar {
 				),
 			),
 
-			// Placeboxes
-			'placebox.es' => array(
-				'title'      => 'Placeboxes',
-				'url'        => 'http://placebox.es/{width}x{height}/{bgcolor}/{color}/{text},{fontsize}/',
-				'format_pos' => false,
-				'query_args' => array(),
-				'options'    => array(
-					'fontsize',
-				),
-			),
-
 			// Placehold It
 			'placehold.it' => array(
 				'title'      => 'Placehold It',
