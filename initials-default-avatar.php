@@ -479,9 +479,9 @@ final class Initials_Default_Avatar {
 			}
 
 			// Define base details
-			$details = wp_parse_args( array(
-				'initials' => $this->get_initials( $name )
-			), $this->generate_colors() );
+			$details             = $this->generate_colors();
+			$details['id']       = $avatar_id;
+			$details['initials'] = $this->get_initials( $name );
 
 			// Filter details for back-compat
 			$details = apply_filters( 'initials_default_avatar_user_data', $details, $avatar_id, $name );
@@ -805,7 +805,7 @@ final class Initials_Default_Avatar {
 			</div>
 		</div>
 
-	<?php
+		<?php
 	}
 
 	/**
