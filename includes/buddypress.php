@@ -59,6 +59,8 @@ class Initials_Default_Avatar_BuddyPress {
 	 * @return string Avatar image html
 	 */
 	public function get_avatar( $avatar, $args, $item_id, $avatar_dir, $css_id, $html_width, $html_height, $avatar_folder_url, $avatar_folder_dir ) {
+
+		// Get the data for this avatar
 		$data = $this->get_avatar_data( $avatar, $args );
 		if ( empty( $data ) )
 			return $avatar;
@@ -86,6 +88,8 @@ class Initials_Default_Avatar_BuddyPress {
 	 * @return string Avatar url
 	 */
 	public function get_avatar_url( $url, $args ) {
+
+		// Get the data for this avatar
 		$data = $this->get_avatar_data( $url, $args );
 		if ( empty( $data ) )
 			return $url;

@@ -63,7 +63,7 @@ final class Initials_Default_Avatar {
 	 * Flag for the sample intials default avatar
 	 *
 	 * @since 1.0.0
-	 * @var boolean 
+	 * @var bool
 	 */
 	public $is_sample = false;
 
@@ -81,13 +81,13 @@ final class Initials_Default_Avatar {
 	 * @since 1.0.0
 	 * @var string 
 	 */
-	public $notice = '';
+	public $notice = 'initials-default-avatar_notice';
 
 	/**
 	 * The selected placeholder service name
 	 *
 	 * @since 1.0.0
-	 * @var string 
+	 * @var bool|string 
 	 */
 	public $service = false;
 
@@ -95,7 +95,7 @@ final class Initials_Default_Avatar {
 	 * All saved services options
 	 *
 	 * @since 1.0.0
-	 * @var string 
+	 * @var array 
 	 */
 	public $options = array();
 
@@ -106,6 +106,14 @@ final class Initials_Default_Avatar {
 	 * @var int
 	 */
 	public $default_fontsize = 65;
+
+	/**
+	 * Holds all processed email hashes
+	 *
+	 * @since 1.1.0
+	 * @var array
+	 */
+	public $email_hashes = array();
 
 	/**
 	 * Setup and return the singleton pattern
@@ -173,35 +181,6 @@ final class Initials_Default_Avatar {
 	}
 
 	/**
-	 * Define default class globals
-	 *
-	 * @since 1.0.0
-	 */
-	private function define_class_globals() {
-
-		// Selected service
-		$this->service = get_option( 'initials_default_avatar_service' );
-		if ( empty( $this->service ) ) {
-			$this->service = key( $this->placeholder_services() );
-		}
-
-		// Options
-		$this->options = get_option( 'initials_default_avatar_options' );
-		if ( empty( $this->options ) ) {
-			$this->options = array();
-		}
-
-		// Notice
-		$this->notice = 'initials-default-avatar_notice';
-
-		// Avatar default details
-		$this->avatars = array( 'user' => array() );
-
-		// Checked email hashes
-		$this->email_hashes = array();
-	}
-
-	/**
 	 * Include the required files
 	 *
 	 * @since 1.1.0
@@ -247,6 +226,26 @@ final class Initials_Default_Avatar {
 
 		// Deactivation
 		add_action( 'deactivate_' . $this->basename, array( $this, 'deactivate' ) );
+	}
+
+	/**
+	 * Define default class globals
+	 *
+	 * @since 1.0.0
+	 */
+	private function define_class_globals() {
+
+		// Selected service
+		$this->service = get_option( 'initials_default_avatar_service' );
+		if ( empty( $this->service ) ) {
+			$this->service = key( $this->placeholder_services() );
+		}
+
+		// Options
+		$this->options = get_option( 'initials_default_avatar_options' );
+		if ( empty( $this->options ) ) {
+			$this->options = array();
+		}
 	}
 
 	/** Plugin **********************************************************/
