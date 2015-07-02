@@ -1246,68 +1246,6 @@ final class Initials_Default_Avatar {
 		// Setup services
 		$services = (array) apply_filters( 'initials_default_avatar_services', array(
 
-			// Cambelt
-			'cambelt.co' => array(
-				'title'      => 'Cambelt',
-				'url'        => 'http://cambelt.co/{width}x{height}/{text}',
-				'format_pos' => false,
-				'query_args' => array(
-					'font'      => 'font',
-					'font_size' => 'fontsize',
-					'format'    => 'format',
-					'color'     => 'color',
-				),
-				'options'    => array(
-					'font'      => array(
-						'label' => __( 'Font', 'initials-default-avatar' ),
-						'type'  => 'select',
-
-						/**
-						 * Font list last checked: 29-11-2013
-						 */
-						'options' => array(
-							'Cabin-Bold'         => 'Cabin Bold',
-							'Cabin-Regular'      => 'Cabin Regular',
-							'Carton-Slab'        => 'Carton Slab',
-							'Cedarville-Cursive' => 'Cedarville Cursive',
-							'Dyno-Bold'          => 'Dyno Bold',
-							'Enriqueta-Regular'  => 'Enriqueta Regular',
-							'Fredericka'         => 'Fredericka',
-							'Fell-English'       => 'Fell English',
-							'Governor'           => 'Governor',
-							'Haymaker'           => 'Haymaker',
-							'Homestead-Display'  => 'Homestead Display',
-							'Homestead-Regular'  => 'Homestead Regular',
-							'Junction'           => 'Junction',
-							'Kameron-Regular'    => 'Kameron Regular',
-							'Kuro-Regular'       => 'Kuro Regular',
-							'Lancelot-Regular'   => 'Lancelot Regular',
-							'LeagueScript'       => 'LeagueScript',
-							'Lobster-Regular'    => 'Lobster Regular',
-							'NewsCycle'          => 'NewsCycle',
-							'Nomed'              => 'Nomed',
-							'Oldenburg'          => 'Oldenburg',
-							'Ostrich-Black'      => 'Ostrich Black',
-							'Ostrich-Regular'    => 'Ostrich Regular',
-							'Otama'              => 'Otama',
-							'Prociono'           => 'Prociono',
-							'Questrial'          => 'Questrial',
-							'RBN'                => 'RBN',
-							'Raleway-Thin'       => 'Raleway Thin',
-							'Ribbon'             => 'Ribbon',
-							'Sheep-Sans'         => 'Sheep Sans',
-							'Sonus-Light'        => 'Sonus Light',
-							'Speedway'           => 'Speedway',
-							'Swanky'             => 'Swanky',
-							'Zeyada'             => 'Zeyada',
-						),
-					),
-					'fontsize' => array(
-						'limit' => 127
-					)
-				),
-			),
-
 			// Dummy Image
 			'dummyimage.com' => array(
 				'title'      => 'Dummy Image',
