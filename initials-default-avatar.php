@@ -1277,19 +1277,6 @@ final class Initials_Default_Avatar {
 				),
 			),
 
-			// Imageholdr
-			'imageholdr.com' => array(
-				'title'      => 'Imageholdr',
-				'url'        => 'http://imageholdr.com/{width}x{height}',
-				'format_pos' => false,
-				'query_args' => array(
-					'background' => 'bgcolor',
-					'color'      => 'color',
-					'text'       => 'text',
-					'format'     => 'format',
-				),
-			),
-
 			// Ipsum Image
 			'ipsumimage.com' => array(
 				'title'      => 'Ipsum Image',
