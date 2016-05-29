@@ -1500,7 +1500,11 @@ final class Initials_Default_Avatar {
 		// Define DOMDocument elements
 		$img = '';
 		$dom = new DOMDocument;
-		$dom->loadHTML( $avatar );
+
+		// Load avatar in fragment
+		$fragment = $dom->createDocumentFragment();
+		$fragment->appendXML( $avatar );
+		$dom->appendChild( $fragment );
 
 		// Get <img> tag
 		foreach ( $dom->getElementsByTagName( 'img' ) as $img ) {
@@ -1525,7 +1529,7 @@ final class Initials_Default_Avatar {
 		if ( ! empty( $img ) ) {
 			$avatar = $dom->saveHTML();
 		}
-		
+
 		return $avatar;
 	}
 }
