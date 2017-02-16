@@ -121,6 +121,7 @@ final class Initials_Default_Avatar {
 	 * @since 1.0.0
 	 *
 	 * @uses Initials_Default_Avatar::setup_globals()
+	 * @uses Initials_Default_Avatar::requires()
 	 * @uses Initials_Default_Avatar::setup_actions()
 	 * @return The single Initials_Default_Avatar
 	 */
@@ -194,9 +195,6 @@ final class Initials_Default_Avatar {
 	 * Setup default actions and filters
 	 *
 	 * @since 1.0.0
-	 *
-	 * @uses add_action()
-	 * @uses add_filter()
 	 */
 	private function setup_actions() {
 
@@ -258,10 +256,6 @@ final class Initials_Default_Avatar {
 	 * files, please use the global language folder.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @uses apply_filters() Calls 'plugin_locale' with {@link get_locale()} value
-	 * @uses load_textdomain() To load the textdomain
-	 * @uses load_plugin_textdomain() To load the textdomain
 	 */
 	public function load_textdomain() {
 
@@ -289,12 +283,6 @@ final class Initials_Default_Avatar {
 	 * Return avatar data when we serve a default avatar
 	 *
 	 * @since 1.1.0
-	 *
-	 * @uses Initials_Default_Avatar::is_valid_gravatar()
-	 * @uses get_user_by()
-	 * @uses Initials_Default_Avatar::get_avatar_details()
-	 * @uses Initials_Default_Avatar::get_avatar_url()
-	 * @uses Initials_Default_Avatar::get_avatar_class()
 	 * 
 	 * @param array $args Avatar data
 	 * @param mixed $id_or_email Avatar object identifier
@@ -380,9 +368,6 @@ final class Initials_Default_Avatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @uses wp_remote_head()
-	 * @uses wp_remote_retrieve_response_code()
-	 *
 	 * @param string $avatar HTML image or image url
 	 * @return bool Whether the given avatar is a valid gravatar
 	 */
@@ -427,11 +412,8 @@ final class Initials_Default_Avatar {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @uses Initials_Default_Avatar::_get_avatar_details()
 	 * @uses apply_filters() Calls 'initials_default_avatar_user_name'
 	 * @uses apply_filters() Calls 'initials_default_avatar_user_data'
-	 * @uses Initials_Default_Avatar::get_initials()
-	 * @uses Initials_Default_Avatar::generate_colors()
 	 * @uses apply_filters() Calls 'ida_get_avatar_details'
 	 * 
 	 * @param int|string $avatar_id Avatar identifier
@@ -672,8 +654,6 @@ final class Initials_Default_Avatar {
 	 * Return the first characters of all the name's words
 	 *
 	 * @since 1.1.0
-	 *
-	 * @uses Initials_Default_Avatar::get_first_char()
 	 * 
 	 * @param string $name Name to get initials from
 	 * @return string Initials
@@ -736,10 +716,6 @@ final class Initials_Default_Avatar {
 	 * Hook admin error when system cannot connect to Gravatar.com
 	 *
 	 * @since 1.0.0
-	 *
-	 * @uses get_userdata()
-	 * @uses wp_remote_head()
-	 * @uses is_wp_error()
 	 */
 	public function hook_admin_message() {
 
@@ -809,8 +785,6 @@ final class Initials_Default_Avatar {
 	 * Store notice option in database
 	 *
 	 * @since 1.0.0
-	 *
-	 * @uses update_option()
 	 */
 	public function admin_store_notice() {
 		update_option( $this->notice, true );
@@ -837,8 +811,6 @@ final class Initials_Default_Avatar {
 	 * Store previous default avatar when switching to initials
 	 *
 	 * @since 1.0.0
-	 *
-	 * @uses update_option()
 	 *
 	 * @param string $new_value Current avatar selection
 	 * @param string $old_value Previous avatar selection
@@ -878,9 +850,6 @@ final class Initials_Default_Avatar {
 	 * Register plugin settings
 	 *
 	 * @since 1.0.0
-	 *
-	 * @uses add_settings_field()
-	 * @uses register_setting()
 	 */
 	public function register_settings() {
 
@@ -944,10 +913,6 @@ final class Initials_Default_Avatar {
 	 * Enqueue scripts in the admin head on settings pages
 	 *
 	 * @since 1.0.0
-	 *
-	 * @uses wp_register_script()
-	 * @uses wp_enqueue_script()
-	 * @uses wp_enqueue_style()
 	 */
 	public function enqueue_scripts( $hook_suffix ) {
 
@@ -968,8 +933,6 @@ final class Initials_Default_Avatar {
 	 * Output settings field for the placeholder service
 	 *
 	 * @since 1.0.0
-	 *
-	 * @uses Initials_Default_Avatar::placeholder_services()
 	 */
 	public function admin_setting_placeholder_service() {
 		$selected = $this->service; ?>
@@ -1004,8 +967,6 @@ final class Initials_Default_Avatar {
 	 * Output settings fields for service options
 	 *
 	 * @since 1.0.0
-	 *
-	 * @uses Initials_Default_Avatar::placeholder_services()
 	 */
 	public function admin_setting_service_options() {
 
@@ -1139,7 +1100,6 @@ final class Initials_Default_Avatar {
 	 *
 	 * @since 1.0.0
 	 * 
-	 * @uses Initials_Default_Avatar::placeholder_services()
 	 * @param string $input Service selected
 	 * @return string|bool Sanitized input
 	 */
@@ -1223,7 +1183,6 @@ final class Initials_Default_Avatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @uses Initials_Default_Avatar::placeholder_services()
 	 * @return array Service
 	 */
 	public function get_current_service() {
@@ -1414,9 +1373,7 @@ final class Initials_Default_Avatar {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @uses delete_option()
-	 * @uses do_action() Calls 'initials_default_vatar_deactivation'
-	 * @uses update_option()
+	 * @uses do_action() Calls 'initials_default_avatar_deactivation'
 	 */
 	public function deactivate() {
 
@@ -1443,8 +1400,6 @@ final class Initials_Default_Avatar {
 	 * 
 	 * @since 1.0.0
 	 *
-	 * @uses Initials_Default_Avatar::get_avatar_data()
-	 * @uses Initials_Default_Avatar::build_avatar()
 	 * @uses apply_filters() Calls 'initials_default_avatar_get_avatar'
 	 * 
 	 * @param string $avatar Previously created avatar html

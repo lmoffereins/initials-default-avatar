@@ -50,9 +50,6 @@ class Initials_Default_Avatar_BuddyPress {
 	 * Filter BuddyPress avatar for our default
 	 *
 	 * @since 1.1.0
-	 * 
-	 * @uses Initials_Default_Avatar_BuddyPress::get_avatar_data()
-	 * @uses Initials_Default_Avatar::build_avatar()
 	 *
 	 * @param string $avatar Avatar image html
 	 * @param array $args
@@ -80,8 +77,6 @@ class Initials_Default_Avatar_BuddyPress {
 	 * Filter BuddyPress avatar url for our default
 	 *
 	 * @since 1.1.0
-	 *
-	 * @uses Initials_Default_Avatar_BuddyPress::get_avatar_data()
 	 * 
 	 * @param string $url Avatar url
 	 * @param array $args
@@ -103,13 +98,6 @@ class Initials_Default_Avatar_BuddyPress {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @uses Initials_Default_Avatar::is_valid_gravatar()
-	 * @uses Initials_Default_Avatar::get_avatar_details()
-	 * @uses Initials_Default_Avatar::get_avatar_url()
-	 * @uses Initials_Default_Avatar::get_avatar_class()
-	 * @uses bp_core_avatar_thumb_width()
-	 * @uses bp_core_avatar_full_width()
-	 * 
 	 * @param string $avatar Avatar
 	 * @param array $args Avatar args
 	 * @return array Avatar data
@@ -160,9 +148,6 @@ class Initials_Default_Avatar_BuddyPress {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @uses get_blog_option()
-	 * @uses bp_get_group_name()
-	 * 
 	 * @param string $name Avatar name
 	 * @param int|string $avatar_id Avatar ID
 	 * @return string Avatar name
