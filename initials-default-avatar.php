@@ -188,6 +188,8 @@ final class Initials_Default_Avatar {
 	 */
 	private function requires() {
 		require( $this->includes_dir . 'actions.php'           );
+		require( $this->includes_dir . 'functions.php'         );
+		require( $this->includes_dir . 'sub-actions.php'       );
 		require( $this->includes_dir . 'extend/buddypress.php' );
 	}
 
@@ -1364,30 +1366,6 @@ final class Initials_Default_Avatar {
 
 		// Default false
 		return null;
-	}
-
-	/** Utility ***************************************************************/
-
-	/**
-	 * Act on plugin deactivation
-	 *
-	 * @since 1.0.0
-	 *
-	 * @uses do_action() Calls 'initials_default_avatar_deactivation'
-	 */
-	public function deactivate() {
-
-		// Remove notice option
-		delete_option( $this->notice );
-
-		// Fire deactivation hook
-		do_action( 'initials_default_avatar_deactivation' );
-
-		// Restore previous avatar default
-		if ( get_option( 'avatar_default' ) === $this->avatar_key ) {
-			update_option( 'avatar_default', get_option( 'initials_default_avatar_previous' ) );
-			delete_option( 'initials_default_avatar_previous' );
-		}
 	}
 
 	/** Back-compat ***********************************************************/
