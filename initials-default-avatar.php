@@ -186,7 +186,8 @@ final class Initials_Default_Avatar {
 	 * @since 1.1.0
 	 */
 	private function requires() {
-		require( $this->includes_dir . 'buddypress.php' );
+		require( $this->includes_dir . 'actions.php'           );
+		require( $this->includes_dir . 'extend/buddypress.php' );
 	}
 
 	/**
@@ -220,9 +221,6 @@ final class Initials_Default_Avatar {
 		add_action( 'wp_ajax_' . $this->notice,         array( $this, 'admin_store_notice'  )        );
 		add_action( 'admin_enqueue_scripts',            array( $this, 'enqueue_scripts'     )        );
 		add_action( 'plugin_action_links',              array( $this, 'plugin_action_links' ), 10, 2 );
-
-		// Extensions
-		add_action( 'bp_init', 'initials_default_avatar_buddypress' );
 
 		// Deactivation
 		add_action( 'deactivate_' . $this->basename, array( $this, 'deactivate' ) );
