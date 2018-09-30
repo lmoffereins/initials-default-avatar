@@ -1,0 +1,108 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Initials Default Avatar\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-30 13:37+0000\n"
+"PO-Revision-Date: 2018-09-30 13:42+0000\n"
+"Last-Translator: Laurens Offereins <lmoffereins@gmail.com>\n"
+"Language-Team: Nederlands\n"
+"Language: nl_NL\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/"
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:455
+msgid "Accept"
+msgstr "Accepteren"
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:474
+msgid "Close"
+msgstr "Sluiten"
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:678
+msgctxt "default avatar display name"
+msgid "Sample"
+msgstr "Voorbeeld"
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/services.php:105
+msgid "Font"
+msgstr "Lettertype"
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:749
+msgid "Font size in percentage"
+msgstr "Lettergrootte in percentage"
+
+#. Author URI of the plugin
+msgid "https://github.com/lmoffereins"
+msgstr ""
+
+#. URI of the plugin
+msgid "https://github.com/lmoffereins/initials-default-avatar"
+msgstr ""
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:309
+msgctxt "Initial(s) for the unknown"
+msgid "X"
+msgstr "X"
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:510
+msgid "Initials (Generated)"
+msgstr "Initialen (gegenereerd)"
+
+#. Name of the plugin
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:565
+msgid "Initials Default Avatar"
+msgstr "Initials Default Avatar"
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:473
+msgid ""
+"Initials Default Avatar has calls to gravatar.com now disabled. Reactivate "
+"the plugin to undo."
+msgstr ""
+"Initials Default Avatar heeft de aanvragen bij gravatar.com uitgezet. "
+"Heractiveer de plugin om dit ongedaan te maken."
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:454
+msgid ""
+"It seems that your site cannot connect to gravatar.com to check user "
+"profiles. Note that Initials Default Avatar may overwrite a valid gravatar "
+"with a default avatar."
+msgstr ""
+"Het lijkt erop dat je site geen verbinding kan maken met gravatar.com om "
+"gebruikersprofielen te checken. Het kan gebeuren dat Initials Default Avatar "
+"nu een valide gravatar overschrijft met een standaard avatar."
+
+#. Author of the plugin
+msgid "Laurens Offereins"
+msgstr ""
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:657
+#, php-format
+msgid "See %s for more information."
+msgstr "Zie %s voor meer informatie."
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:656
+msgid "Select a placeholder service."
+msgstr "Selecteer een online placeholder dienst."
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:649
+msgid "Select a service"
+msgstr "Selecteer een dienst"
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:763
+msgid "Select an option"
+msgstr "Selecteer een optie"
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:688
+msgid "Service options"
+msgstr "Opties"
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:547
+msgid "Settings"
+msgstr "Instellingen"
+
+#. Description of the plugin
+msgid "Use colorful inital-based default avatars"
+msgstr "Gebruik kleurrijke standaard avatars met initialen"
