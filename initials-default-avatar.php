@@ -170,6 +170,10 @@ final class Initials_Default_Avatar {
 		$this->includes_dir = trailingslashit( $this->plugin_dir . 'includes' );
 		$this->includes_url = trailingslashit( $this->plugin_url . 'includes' );
 
+		// Assets
+		$this->assets_dir   = trailingslashit( $this->plugin_dir . 'assets' );
+		$this->assets_url   = trailingslashit( $this->plugin_url . 'assets' );
+
 		// Languages
 		$this->lang_dir     = trailingslashit( $this->plugin_dir . 'languages' );
 
@@ -923,7 +927,7 @@ final class Initials_Default_Avatar {
 			return;
 
 		// Register
-		wp_register_script( 'initials-default-avatar', trailingslashit( plugin_dir_url( __FILE__ ) ) . 'js/initials-default-avatar.js', array( 'jquery' ), '1.0.0', true );
+		wp_register_script( 'initials-default-avatar', $this->assets_url . 'js/initials-default-avatar.js', array( 'jquery' ), $this->version, true );
 
 		// Enqueue
 		wp_enqueue_script( 'initials-default-avatar' );
