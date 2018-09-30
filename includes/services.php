@@ -15,13 +15,13 @@ defined( 'ABSPATH' ) || exit;
  *
  * Default registered services (with options)
  *  - dummyimage.com
- *  - getdummyimage.com (border color)
  *  - ipsumimage.appspot.com (font size)
  *  - placehold.it
  *  - fakeimg.pl
  *
  * Deprecated services
  *  - cambelt.co (font, font size)
+ *  - getdummyimage.com (border color)
  *  - imageholdr.com
  *  - placebox.es (font size)
  *
@@ -47,31 +47,6 @@ function initials_default_avatar_register_default_services() {
 			'format_pos' => 'height',
 			'query_args' => array(
 				'text' => 'text',
-			),
-		)
-	);
-
-	/** Get Dummy Image *******************************************************/
-
-	initials_default_avatar_register_service(
-		'getdummyimage.com',
-		array(
-			'title'      => 'Get Dummy Image',
-			'url'        => 'http://getdummyimage.com/image',
-			'format_pos' => false,
-			'query_args' => array(
-				'width'       => 'width',
-				'height'      => 'height',
-				'bgcolor'     => 'bgcolor',
-				'color'       => 'color',
-				'text'        => 'text',
-				'bordercolor' => 'bordercolor',
-			),
-			'options'    => array(
-				'bordercolor' => array(
-					'label' => __( 'Border Color', 'initials-default-avatar' ),
-					'type'  => 'color',
-				),
 			),
 		)
 	);
