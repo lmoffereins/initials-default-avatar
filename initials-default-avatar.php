@@ -9,7 +9,7 @@
 
 /**
  * Plugin Name:       Initials Default Avatar
- * Description:       Give your default avatars some text and random color love (inspired by Gmail).
+ * Description:       Use colorful inital-based default avatars
  * Plugin URI:        https://github.com/lmoffereins/initials-default-avatar
  * Author:            Laurens Offereins
  * Author URI:        https://github.com/lmoffereins
