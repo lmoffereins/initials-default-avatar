@@ -41,12 +41,6 @@ This plugin is highly extendable through various filters. For example you can:
 
 1. Initials are based on the user display name as selected on the user profile page. For unregistered commenters the comment author name is used.
 
-== Screenshots ==
-
-1. Plugin options on the Discussion admin page
-2. Default avatars on the Users admin page
-3. Comment thread on Twenty Thirteen
-
 == Changelog ==
 
 = 1.0 =
