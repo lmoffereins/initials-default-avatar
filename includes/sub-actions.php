@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Run dedicated activation hook for this plugin
  *
- * @since 1.0.0
+ * @since 1.1.0
  *
  * @uses do_action() Calls 'initials_default_avatar_activation'
  */
@@ -24,7 +24,7 @@ function initials_default_avatar_activation() {
 /**
  * Run dedicated deactivation hook for this plugin
  *
- * @since 1.0.0
+ * @since 1.1.0
  *
  * @uses do_action() Calls 'initials_default_avatar_deactivation'
  */
@@ -35,7 +35,7 @@ function initials_default_avatar_deactivation() {
 /**
  * Run dedicated init hook for this plugin
  *
- * @since 1.0.0
+ * @since 1.1.0
  *
  * @uses do_action() Calls 'initials_default_avatar_init'
  */

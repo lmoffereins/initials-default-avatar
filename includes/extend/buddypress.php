@@ -51,6 +51,8 @@ class Initials_Default_Avatar_BuddyPress {
 	 *
 	 * @since 1.1.0
 	 *
+	 * @uses apply_filters() Calls 'initials_default_avatar_bp_get_avatar'
+	 *
 	 * @param string $avatar Avatar image html
 	 * @param array $args
 	 * @return string Avatar image html
@@ -68,7 +70,7 @@ class Initials_Default_Avatar_BuddyPress {
 		 * Since we cannot insert an image url with a querystring into the 
 		 * Gravatar's image src default query arg, we just completely rewrite it.
 		 */
-		$avatar = initials_default_avatar()->build_avatar( $avatar, array( 'src' => $data['url'], 'class' => $data['class'] ) );
+		$avatar = initials_default_avatar_build_avatar( $avatar, array( 'src' => $data['url'], 'class' => $data['class'] ) );
 
 		return apply_filters( 'initials_default_avatar_bp_get_avatar', $avatar, $args, $item_id, $avatar_dir, $css_id, $html_width, $html_height, $avatar_folder_url, $avatar_folder_dir );
 	}
@@ -77,6 +79,8 @@ class Initials_Default_Avatar_BuddyPress {
 	 * Filter BuddyPress avatar url for our default
 	 *
 	 * @since 1.1.0
+	 *
+	 * @uses apply_filters() Calls 'initials_default_avatar_bp_get_avatar_url'
 	 * 
 	 * @param string $url Avatar url
 	 * @param array $args
@@ -103,16 +107,15 @@ class Initials_Default_Avatar_BuddyPress {
 	 * @return array Avatar data
 	 */
 	public function get_avatar_data( $avatar, $args ) {
-		$ida = initials_default_avatar();
 
 		// Bail when we're not serving the avatar default
-		if ( $ida->avatar_key !== buddypress()->grav_default->{$args['object']} )
+		if ( ! initials_default_avatar_is_initials_avatar( buddypress()->grav_default->{$args['object']} ) )
 			return false;
 
 		// Since the avatar url could have been forged from uploaded images,
 		// we only return a default avatar for failing gravatars. So, bail
 		// when this is not a gravatar or when it is not a valid gravatar.
-		if ( false === strpos( $avatar, 'gravatar.com' ) || $ida->is_valid_gravatar( $avatar ) )
+		if ( false === strpos( $avatar, 'gravatar.com' ) || initials_default_avatar_is_valid_gravatar( $avatar ) )
 			return false;
 
 		// Define BP avatar id
@@ -123,7 +126,7 @@ class Initials_Default_Avatar_BuddyPress {
 		}
 
 		// Get avatar details
-		$details = $ida->get_avatar_details( $avatar_id );
+		$details = initials_default_avatar_get_avatar_details( $avatar_id );
 
 		// Set size var
 		if ( false !== $args['width'] ) {
@@ -136,8 +139,8 @@ class Initials_Default_Avatar_BuddyPress {
 
 		// Get avatar url and class
 		$data = array(
-			'url'   => $ida->get_avatar_url  ( $details,       $args ),
-			'class' => $ida->get_avatar_class( $args['class'], $args )
+			'url'   => initials_default_avatar_get_avatar_url  ( $details,       $args ),
+			'class' => initials_default_avatar_get_avatar_class( $args['class'], $args )
 		);
 
 		return $data;
@@ -179,9 +182,9 @@ class Initials_Default_Avatar_BuddyPress {
  *
  * @since 1.1.0
  * 
- * @return Initials_Default_Avatar_BuddyPress
+ * @uses Initials_Default_Avatar_BuddyPress
  */
-function initials_default_avatar_buddypress() {
+function initials_default_avatar_setup_buddypress() {
 	initials_default_avatar()->extend->buddypress = new Initials_Default_Avatar_BuddyPress;
 }
 
