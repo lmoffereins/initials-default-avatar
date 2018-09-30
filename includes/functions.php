@@ -10,6 +10,68 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/** Versions ******************************************************************/
+
+/**
+ * Output the plugin version
+ *
+ * @since 1.1.0
+ */
+function initials_default_avatar_version() {
+	echo initials_default_avatar_get_version();
+}
+
+	/**
+	 * Return the plugin version
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return string The plugin version
+	 */
+	function initials_default_avatar_get_version() {
+		return initials_default_avatar()->version;
+	}
+
+/**
+ * Output the plugin database version
+ *
+ * @since 1.1.0
+ */
+function initials_default_avatar_db_version() {
+	echo initials_default_avatar_get_db_version();
+}
+
+	/**
+	 * Return the plugin database version
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return string The plugin version
+	 */
+	function initials_default_avatar_get_db_version() {
+		return initials_default_avatar()->db_version;
+	}
+
+/**
+ * Output the plugin database version directly from the database
+ *
+ * @since 1.1.0
+ */
+function initials_default_avatar_db_version_raw() {
+	echo initials_default_avatar_get_db_version_raw();
+}
+
+	/**
+	 * Return the plugin database version directly from the database
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return string The current plugin version
+	 */
+	function initials_default_avatar_get_db_version_raw() {
+		return get_option( 'initials_default_avatar_db_version', '' );
+	}
+
 /** Core **********************************************************************/
 
 /**

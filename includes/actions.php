@@ -31,6 +31,12 @@ if ( ! function_exists( 'get_avatar_data' ) ) {
 	add_filter( 'get_avatar', 'initials_default_avatar_get_avatar', 10, 5 );
 }
 
+/** Admin *********************************************************************/
+
+if ( is_admin() ) {
+	add_action( 'admin_init', 'initials_default_avatar_setup_updater', 999 );
+}
+
 /** Extend ********************************************************************/
 
 add_action( 'bp_loaded', 'initials_default_avatar_setup_buddypress' );
