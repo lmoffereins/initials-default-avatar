@@ -3,9 +3,9 @@ Contributors: offereins
 Tags: avatar, default, initials, initial, color, gmail, placeholder, happy, letter
 Requires at least: 3.3
 Tested up to: 3.7.1
-Stable tag: 1.0
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Stable tag: 1.0.0
+License: GPLv3 or later
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 Give your default avatars some text and color love, inspired by Gmail.
 
