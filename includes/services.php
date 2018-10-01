@@ -11,117 +11,12 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Register initial plugin placeholder services
- *
- * Default registered services (with options)
- *  - dummyimage.com
- *  - ipsumimage.appspot.com (font size)
- *  - placehold.it
- *  - fakeimg.pl
- *
- * Deprecated services
- *  - cambelt.co (font, font size)
- *  - getdummyimage.com (border color)
- *  - imageholdr.com
- *  - placebox.es (font size)
- *
- * Other unsupported services
- *  - lorempixel.com: no color backgrounds
- *  - placeIMG.com: no color backgrounds
- *  - fpooimg.com: uses image dimensions for text
- *  - p-hold.com: no color backgrounds, no text
- *  - lorempics.com: no text
- *  - xoart.link: no color backgrounds
- *
- * @since 1.1.0
- */
-function initials_default_avatar_register_default_services() {
-
-	/** Dummy Image ***********************************************************/
-
-	initials_default_avatar_register_service(
-		'dummyimage.com',
-		array(
-			'title'      => 'Dummy Image',
-			'url'        => 'http://dummyimage.com/{width}x{height}/{bgcolor}/{color}',
-			'format_pos' => 'height',
-			'query_args' => array(
-				'text' => 'text',
-			),
-		)
-	);
-
-	/** Ipsum Image ***********************************************************/
-
-	initials_default_avatar_register_service(
-		'ipsumimage.com',
-		array(
-			'title'      => 'Ipsum Image',
-			'url'        => 'http://ipsumimage.appspot.com/{width}x{height}',
-			'format_pos' => false,
-			'query_args' => array(
-				'b' => 'bgcolor',
-				'f' => 'color',
-				'l' => 'text',
-				's' => 'fontsize',
-				't' => 'format'
-			),
-			'options'    => array(
-				'fontsize',
-			),
-		)
-	);
-
-	/** Placehold It **********************************************************/
-
-	initials_default_avatar_register_service(
-		'placehold.it',
-		array(
-			'title'      => 'Placehold It',
-			'url'        => 'http://placehold.it/{width}x{height}/{bgcolor}/{color}',
-			'format_pos' => 'height',
-			'query_args' => array(
-				'text' => 'text'
-			),
-		)
-	);
-
-	/** Fake Images Please ****************************************************/
-
-	initials_default_avatar_register_service(
-		'fakeimg.pl',
-		array(
-			'title'      => 'Fake Images Please',
-			'url'        => 'http://fakeimg.pl/{width}x{height}/{bgcolor}/{color}/',
-			'format_pos' => false,
-			'query_args' => array(
-				'font'      => 'font',
-				'font_size' => 'fontsize',
-				'text'      => 'text',
-			),
-			'options'    => array(
-				'fontsize',
-				'font'      => array(
-					'label' => __( 'Font', 'initials-default-avatar' ),
-					'type'  => 'select',
-					'options' => array(
-						'bebas'   => 'Bebas',
-						'lobster' => 'Lobster',
-						'museo'   => 'Museo',
-					),
-				)
-			),
-		)
-	);
-}
-
-/**
  * Register a single placeholder service
  *
  * @since 1.1.0
  *
  * @param string $service Service name
- * @param array $args Array of service arguments {@see Initials_Default_Avatar::register_service()}.
+ * @param array $args Service arguments, {@see Initials_Default_Avatar::register_service()}.
  * @return bool Serivce was registered
  */
 function initials_default_avatar_register_service( $service, $args = array() ) {

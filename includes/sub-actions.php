@@ -42,3 +42,14 @@ function initials_default_avatar_deactivation() {
 function initials_default_avatar_init() {
 	do_action( 'initials_default_avatar_init' );
 }
+
+/**
+ * Run dedicated service registration hook for this plugin
+ *
+ * @since 1.1.0
+ *
+ * @uses do_action() Calls 'initials_default_avatar_register_services'
+ */
+function initials_default_avatar_register_services() {
+	do_action( 'initials_default_avatar_register_services' );
+}

@@ -12,11 +12,8 @@ defined( 'ABSPATH' ) || exit;
 
 /** Sub-actions ***************************************************************/
 
-add_action( 'init', 'initials_default_avatar_init' );
-
-/** Core **********************************************************************/
-
-add_action( 'initials_default_avatar_init', 'initials_default_avatar_register_default_services', 5 );
+add_action( 'init',                         'initials_default_avatar_init'                 );
+add_action( 'initials_default_avatar_init', 'initials_default_avatar_register_services', 5 );
 
 /** Utility *******************************************************************/
 
