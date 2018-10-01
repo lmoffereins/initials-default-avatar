@@ -34,7 +34,8 @@ if ( ! function_exists( 'get_avatar_data' ) ) {
 /** Admin *********************************************************************/
 
 if ( is_admin() ) {
-	add_action( 'admin_init', 'initials_default_avatar_setup_updater', 999 );
+	add_action( 'initials_default_avatar_init', 'initials_default_avatar_admin'              );
+	add_action( 'admin_init',                   'initials_default_avatar_setup_updater', 999 );
 }
 
 /** Extend ********************************************************************/
