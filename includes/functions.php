@@ -554,7 +554,7 @@ function initials_default_avatar_get_avatar_url( $details, $args, $service = '' 
 
 		// Default font size
 		if ( null === $perc ) {
-			$perc = initials_default_avatar()->default_fontsize;
+			$perc = 65;
 		}
 
 		// Calculate size
