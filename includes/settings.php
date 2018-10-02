@@ -100,6 +100,8 @@ function initials_default_avatar_admin_setting_placeholder_service() {
 	$selected = get_option( 'initials_default_avatar_service' ); ?>
 
 	<div id="initials-default-avatar">
+		<p><?php esc_html_e( 'The generated images for the Initials avatars are requested from an external online placeholder service. You can choose from multiple services. These services are not affiliated with this plugin.', 'initials-default-avatar' ); ?></p>
+
 		<label for="placeholder-service">
 			<select name="initials_default_avatar_service" id="placeholder-service">
 				<option value=""><?php esc_html_e( 'Select a service', 'initials-default-avatar' ); ?></option>
