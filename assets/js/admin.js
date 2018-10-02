@@ -1,8 +1,8 @@
 /**
- * Initials Default Avatar script
+ * Initials Default Avatar Admin scripts
  *
  * @package Initials Default Avatar
- * @subpackage Scripts
+ * @subpackage Administration
  */
 
 jQuery(document).ready( function($) {
