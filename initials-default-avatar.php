@@ -171,7 +171,8 @@ final class Initials_Default_Avatar {
 		/** Admin *************************************************************/
 
 		if ( is_admin() ) {
-			require( $this->includes_dir . 'admin.php' );
+			require( $this->includes_dir . 'admin.php'    );
+			require( $this->includes_dir . 'settings.php' );
 		}
 
 		/** Extensions ********************************************************/
