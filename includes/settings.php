@@ -137,16 +137,16 @@ function initials_default_avatar_admin_setting_service_options() {
 		// Hide non-selected services
 		$style = ( $current->name !== $service->name ) ? 'style="display:none;"' : ''; ?>
 
-		<div id="service-<?php echo $service->name; ?>" class="service-options" <?php echo $style; ?>>
+		<div id="service-<?php echo $service->name; ?>" class="service-options-wrap" <?php echo $style; ?>>
 			<h4 class="title"><?php esc_html_e( 'Service options', 'initials-default-avatar' ); ?></h4>
 
-			<div class="avatar-preview" style="float:left; margin-right: 10px;">
+			<div class="avatar-preview">
 				<img src="<?php echo initials_default_avatar_get_avatar_url( $details, $args, $service->name ); ?>" class="<?php echo initials_default_avatar_get_avatar_class( '', $args, $service->name ); ?>" width="100" height="100" />
 			</div>
 
 			<?php if ( isset( $service->options ) ) : ?>
 
-			<div class="options" style="float:left;">
+			<div class="service-options">
 				<?php foreach ( $service->options as $field => $option ) : ?>
 
 				<?php initials_default_avatar_service_option_field( $service, $field, $option ); ?><br>

@@ -1,0 +1,19 @@
+/**
+ * Initials Default Avatar Admin styles
+ *
+ * @package Initials Default Avatar
+ * @subpackage Administration
+ */
+
+#initials-default-avatar p {
+	margin-bottom: 1em;
+}
+
+#initials-default-avatar .avatar-preview {
+	float: left;
+	margin-right: 10px;
+}
+
+#initials-default-avatar .service-options {
+	float: left;
+}
