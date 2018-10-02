@@ -158,8 +158,8 @@ class Initials_Default_Avatar_Admin {
 		<div id="initials-default-avatar_notice">
 			<div id="initials-default-avatar_note1" class="error">
 				<p>
-					<?php _e( 'It seems that your site cannot connect to gravatar.com to check user profiles. Note that Initials Default Avatar may overwrite a valid gravatar with a default avatar.', 'initials-default-avatar' ); ?>
-					<a class="dismiss" href="#"><?php _e( 'Accept', 'initials-default-avatar' ); ?></a><img class="hidden" src="<?php echo admin_url('/images/wpspin_light.gif'); ?>" style="vertical-align: middle; margin-left: 3px;" />
+					<?php esc_html_e( 'It seems that your site cannot connect to gravatar.com to check user profiles. Note that Initials Default Avatar may overwrite a valid gravatar with a default avatar.', 'initials-default-avatar' ); ?>
+					<a class="dismiss" href="#"><?php esc_html_e( 'Accept', 'initials-default-avatar' ); ?></a><img class="hidden" src="<?php echo admin_url('/images/wpspin_light.gif'); ?>" style="vertical-align: middle; margin-left: 3px;" />
 					<script type="text/javascript">
 						jQuery(document).ready( function($){
 							var $this = $('#initials-default-avatar_note1');
@@ -177,8 +177,8 @@ class Initials_Default_Avatar_Admin {
 
 			<div id="initials-default-avatar_note2" class="error hidden">
 				<p>
-					<?php _e( 'Initials Default Avatar has calls to gravatar.com now disabled. Reactivate the plugin to undo.', 'initials-default-avatar' ); ?>
-					<a class="close" href="#"><?php _e( 'Close', 'initials-default-avatar' ); ?></a>
+					<?php esc_html_e( 'Initials Default Avatar has calls to gravatar.com now disabled. Reactivate the plugin to undo.', 'initials-default-avatar' ); ?>
+					<a class="close" href="#"><?php esc_html_e( 'Close', 'initials-default-avatar' ); ?></a>
 					<script type="text/javascript">
 						jQuery(document).ready( function($){
 							$('#initials-default-avatar_note2').on('click', 'close', function(e){

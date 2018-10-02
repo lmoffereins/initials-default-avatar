@@ -102,7 +102,7 @@ function initials_default_avatar_admin_setting_placeholder_service() {
 	<div id="initials-default-avatar">
 		<label for="placeholder-service">
 			<select name="initials_default_avatar_service" id="placeholder-service">
-				<option value=""><?php _e( 'Select a service', 'initials-default-avatar' ); ?></option>
+				<option value=""><?php esc_html_e( 'Select a service', 'initials-default-avatar' ); ?></option>
 				<?php foreach ( initials_default_avatar_get_services() as $service => $args ) : ?>
 
 				<option value="<?php echo $service; ?>" <?php selected( $selected, $service ); ?>><?php echo $args->title; ?></option>
@@ -110,7 +110,7 @@ function initials_default_avatar_admin_setting_placeholder_service() {
 				<?php endforeach; ?>
 			</select>
 			<?php esc_html_e( 'Select a placeholder service.', 'initials-default-avatar' ); ?>
-			<span class="learn-more"><?php printf( __( 'See %s for more information.', 'initials-default-avatar' ), sprintf( '<a class="service-url" target="_blank" href="http://%1$s">%1$s</a>', $service ) ); ?></span>
+			<span class="learn-more"><?php printf( esc_html__( 'See %s for more information.', 'initials-default-avatar' ), sprintf( '<a class="service-url" target="_blank" href="http://%1$s">%1$s</a>', $service ) ); ?></span>
 		</label>
 
 		<?php initials_default_avatar_admin_setting_service_options(); ?>
