@@ -101,15 +101,22 @@ class Initials_Default_Avatar_Admin {
 	 */
 	public function enqueue_scripts( $hook_suffix ) {
 
-		// Register
+		// Register admin script
 		wp_register_script( 'initials-default-avatar-admin', initials_default_avatar()->assets_url . 'js/admin.js', array( 'jquery' ), initials_default_avatar_get_version(), true );
 
 		// Bail if not on the discussion page
 		if ( 'options-discussion.php' !== $hook_suffix )
 			return;
 
-		// Enqueue
+		// Enqueue admin script
 		wp_enqueue_script( 'initials-default-avatar-admin' );
+		wp_localize_script( 'initials-default-avatar-admin', 'initialsDefaultAvatarAdmin', array(
+			'settings' => array(
+				'avatarKey' => initials_default_avatar_get_avatar_key()
+			)
+		) );
+
+		// Enqueue color picker
 		wp_enqueue_script( 'wp-color-picker' );
 		wp_enqueue_style( 'wp-color-picker' );
 	}

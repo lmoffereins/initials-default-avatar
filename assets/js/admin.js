@@ -5,7 +5,8 @@
  * @subpackage Administration
  */
 
-jQuery(document).ready( function($) {
+/* globals initialsDefaultAvatarAdmin */
+( function( $ ) {
 
 	// Get our settings field
 	var $ida = $('#initials-default-avatar');
@@ -32,8 +33,9 @@ jQuery(document).ready( function($) {
 
 		// Backslash single dot in service name
 		// Since dots will match class names, not ids
-		if ( dot != -1 )
+		if ( dot !== -1 ) {
 			service = service.substring( 0, dot ) + '\\' + service.substring( dot );
+		}
 
 		// Hide all service options and show selected one
 		opts.hide().filter('#service-' + service).show();
@@ -72,10 +74,43 @@ jQuery(document).ready( function($) {
 	var replace = function( replace, replaceWith, str ) {
 
 		// Bail if no replace found
-		if ( str.indexOf( replace ) === -1 )
+		if ( str.indexOf( replace ) === -1 ) {
 			return str;
+		}
 
 		return str.substr(0, str.indexOf( replace )) + replaceWith + str.substr(str.indexOf( replace ) + replace.length );
 	};
 
-});
+})( jQuery );
+
+/**
+ * Handles service selection and service options display
+ */
+( function( $ ) {
+	var show_avatars = $( '#show_avatars' ),
+	    avatar_default = $( 'input[name="avatar_default"]' ),
+	    settings_field = $( '#initials-default-avatar' ).parents( 'tr' ).first();
+
+	// Add classes to our field's parent <tr>
+	settings_field.addClass( function() {
+		var c = 'avatar-settings';
+
+		// Hide field when avatars are not in use
+		if ( ! show_avatars.is( ':checked' ) ) {
+			c += ' hide-if-js';
+		}
+
+		// Hide field when our default is not selected
+		if ( avatar_default.filter( ':checked' ).val() !== initialsDefaultAvatarAdmin.settings.avatarKey ) {
+			c += ' hidden';
+		}
+
+		return c;
+	});
+
+	// Show service settings on default selection
+	avatar_default.change( function() {
+		settings_field.toggleClass( 'hidden', this.value !== initialsDefaultAvatarAdmin.settings.avatarKey );
+	});
+
+})( jQuery );

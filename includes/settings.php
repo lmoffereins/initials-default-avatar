@@ -117,9 +117,6 @@ function initials_default_avatar_admin_setting_placeholder_service() {
 	</div>
 
 	<?php
-
-	// Enqueue script. See wp-admin/options-discussion.php since WP 4.2.
-	add_action( 'admin_print_footer_scripts', 'initials_default_avatar_admin_settings_js', 9 );
 }
 
 /**
@@ -262,46 +259,4 @@ function initials_default_avatar_service_option_field( $service, $field, $args )
 
 	// Output break, input, label
 	echo apply_filters( 'initials_default_avatar_service_option_field', $_field, $service, $field, $args );
-}
-
-/**
- * Output js to bring our field in parity with WP 4.2's discussion js
- *
- * @see options_discussion_add_js()
- *
- * @since 1.1.0
- */
-function initials_default_avatar_admin_settings_js() { ?>
-	<script>
-	( function($) {
-		var show_avatars = $( '#show_avatars' ),
-		    avatar_default = $( 'input[name="avatar_default"]' ),
-		    avatar_key     = '<?php echo initials_default_avatar_get_avatar_key(); ?>',
-		    settings_field = $( '#initials-default-avatar' ).parents( 'tr' ).first();
-
-		// Add classes to our field's parent <tr>
-		settings_field.addClass( function() {
-			var c = 'avatar-settings';
-
-			// Hide field when avatars are not in use
-			if ( ! show_avatars.is( ':checked' ) ) {
-				c += ' hide-if-js';
-			}
-
-			// Hide field when our default is not selected
-			if ( avatar_default.filter( ':checked' ).val() !== avatar_key ) {
-				c += ' hidden';
-			}
-
-			return c;
-		});
-
-		// Show service settings on default selection
-		avatar_default.change( function() {
-			settings_field.toggleClass( 'hidden', this.value !== avatar_key );
-		});
-
-	})( jQuery );
-	</script>
-	<?php
 }
