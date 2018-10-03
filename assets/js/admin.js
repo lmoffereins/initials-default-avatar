@@ -19,7 +19,7 @@
 		var $this   = $(this),
 		    service = $this.val(),
 		    dot     = service.indexOf( '.' ),
-		    opts    = $ida.find('.service-options');
+		    opts    = $ida.find('.service-options-wrap');
 
 		// Change learn-more link src and text
 		if ( service.length > 0 ) {
@@ -50,7 +50,7 @@
 	}).on( 'change', function() {
 		var $this = $(this),
 		    prev  = $this.data('prev'),
-		    $img  = $this.parents('.service-options').find('.avatar-preview img');
+		    $img  = $this.parents('.service-options-wrap').find('.avatar-preview img');
 
 		// Update src paramater by finding previous value and replace it with new input
 		$img.attr({'src': replace( prev, this.value, $img.attr('src') ) });
