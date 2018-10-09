@@ -37,14 +37,37 @@ class Initials_Default_Avatar_BuddyPress {
 	private function setup_actions() {
 
 		// Buddypress
-		add_filter( 'bp_core_fetch_avatar',     array( $this, 'get_avatar'     ), 10, 9 );
-		add_filter( 'bp_core_fetch_avatar_url', array( $this, 'get_avatar_url' ), 10, 2 );
+		add_filter( 'bp_core_get_root_options', array( $this, 'get_root_options' )        );
+		add_filter( 'bp_core_fetch_avatar',     array( $this, 'get_avatar'       ), 10, 9 );
+		add_filter( 'bp_core_fetch_avatar_url', array( $this, 'get_avatar_url'   ), 10, 2 );
 
-		// IDA
+		// Avatar
 		add_filter( 'initials_default_avatar_user_name', array( $this, 'filter_avatar_name' ), 10, 4 );
 	}
 
 	/** Public methods **************************************************/
+
+	/**
+	 * Modify the set of prefetched site options
+	 *
+	 * Prefetched site options are queried without the usual option filters, so
+	 * here we need to mimic option filters.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $options Site options
+	 * @return array Site options
+	 */
+	public function get_root_options( $options ) {
+
+		// Set the network default options
+		if ( initials_default_avatar_is_network_default() ) {
+			$options['show_avatars']   = true;
+			$options['avatar_default'] = initials_default_avatar_get_avatar_key();
+		}
+
+		return $options;
+	}
 
 	/**
 	 * Filter BuddyPress avatar for our default

@@ -199,7 +199,9 @@ final class Initials_Default_Avatar {
 
 		// Settings
 		add_filter( 'avatar_defaults',                  array( $this, 'avatar_defaults'       )        );
-		add_filter( 'pre_update_option_avatar_default', array( $this, 'save_previous_default' ), 10, 2 );
+		add_filter( 'pre_option_show_avatars',          array( $this, 'get_show_avatars'      ), 99    );
+		add_filter( 'pre_option_avatar_default',        array( $this, 'get_avatar_default'    ), 99    );
+		add_filter( 'pre_update_option_avatar_default', array( $this, 'update_avatar_default' ), 10, 2 );
 	}
 
 	/** Plugin **********************************************************/
@@ -535,6 +537,42 @@ final class Initials_Default_Avatar {
 	}
 
 	/**
+	 * Modify early the option for 'show_avatars'
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param mixed $retval Option value
+	 * @return mixed Option value
+	 */
+	public function get_show_avatars( $retval ) {
+
+		// When the default is network-defined
+		if ( initials_default_avatar_is_network_default() ) {
+			$retval = true;
+		}
+
+		return $retval;
+	}
+
+	/**
+	 * Modify early the option for 'avatar_default'
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param mixed $retval Option value
+	 * @return mixed Option value
+	 */
+	public function get_avatar_default( $retval ) {
+
+		// When the default is network-defined
+		if ( initials_default_avatar_is_network_default() ) {
+			$retval = initials_default_avatar_get_avatar_key();
+		}
+
+		return $retval;
+	}
+
+	/**
 	 * Store previous default avatar when switching to initials
 	 *
 	 * @since 1.0.0
@@ -542,7 +580,7 @@ final class Initials_Default_Avatar {
 	 * @param string $new_value Current avatar selection
 	 * @param string $old_value Previous avatar selection
 	 */
-	public function save_previous_default( $new_value, $old_value ) {
+	public function update_avatar_default( $new_value, $old_value ) {
 
 		// Save the previous avatar selection for later
 		if ( initials_default_avatar_is_initials_avatar( $new_value ) && $new_value !== $old_value ) {

@@ -8,6 +8,11 @@
 /* globals initialsDefaultAvatarAdmin */
 ( function( $ ) {
 
+	// Bail when the default is network-defined
+	if ( initialsDefaultAvatarAdmin.settings.networkDefault.isActive ) {
+		return;
+	}
+
 	// Get our settings field
 	var $ida = $('#initials-default-avatar');
 
@@ -87,21 +92,39 @@
  * Handles service selection and service options display
  */
 ( function( $ ) {
-	var show_avatars = $( '#show_avatars' ),
-	    avatar_default = $( 'input[name="avatar_default"]' ),
+
+	// Bail when the default is network-defined
+	if ( initialsDefaultAvatarAdmin.settings.networkDefault.isActive ) {
+		return;
+	}
+
+	var networkAdmin = $( 'body' ).is( '.network-admin' ),
+	    avatar_default = networkAdmin ? $( 'input[name="initials_default_avatar_network_default"]' ) : $( 'input[name="avatar_default"]' ),
 	    settings_field = $( '#initials-default-avatar' ).parents( 'tr' ).first();
+
+	/**
+	 * Return whether the avatar default is selected
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  {String} value Selected value
+	 * @return {Boolean}
+	 */
+	var isDefaultSelected = function() {
+		return networkAdmin ? avatar_default.is( ':checked' ) : avatar_default.filter( ':checked' ).val() === initialsDefaultAvatarAdmin.settings.avatarKey;
+	};
 
 	// Add classes to our field's parent <tr>
 	settings_field.addClass( function() {
 		var c = 'avatar-settings';
 
 		// Hide field when avatars are not in use
-		if ( ! show_avatars.is( ':checked' ) ) {
+		if ( ! networkAdmin && ! $( '#show_avatars' ).is( ':checked' ) ) {
 			c += ' hide-if-js';
 		}
 
 		// Hide field when our default is not selected
-		if ( avatar_default.filter( ':checked' ).val() !== initialsDefaultAvatarAdmin.settings.avatarKey ) {
+		if ( ! isDefaultSelected() ) {
 			c += ' hidden';
 		}
 
@@ -110,7 +133,30 @@
 
 	// Show service settings on default selection
 	avatar_default.change( function() {
-		settings_field.toggleClass( 'hidden', this.value !== initialsDefaultAvatarAdmin.settings.avatarKey );
+		settings_field.toggleClass( 'hidden', ! isDefaultSelected() );
 	});
+
+})( jQuery );
+
+/**
+ * Handles removing setting content when the avatar default is network-defined
+ */
+( function( $ ) {
+
+	// Bail when the default is not network-defined
+	if ( ! initialsDefaultAvatarAdmin.settings.networkDefault.isActive ) {
+		return;
+	}
+
+	// Find the 'Avatars' heading
+	$( 'h2.title' ).filter( function() {
+		return this.innerHTML === initialsDefaultAvatarAdmin.settings.networkDefault.heading;
+	})
+
+		// Replace the section description
+		.next( 'p' ).html( initialsDefaultAvatarAdmin.settings.networkDefault.message )
+
+		// Remove the settings table
+		.next( 'table' ).remove();
 
 })( jQuery );

@@ -705,6 +705,19 @@ function initials_default_avatar_generate_colors() {
 	return compact( 'bgcolor', 'color' );
 }
 
+/** Network *******************************************************************/
+
+/**
+ * Return whether this plugin should provide default avatars network-wide
+ *
+ * @since 1.1.0
+ *
+ * @return bool Is network default active?
+ */
+function initials_default_avatar_is_network_default() {
+	return is_multisite() && get_site_option( 'initials_default_avatar_network_default' );
+}
+
 /** Utility *******************************************************************/
 
 /**

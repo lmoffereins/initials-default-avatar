@@ -48,6 +48,11 @@ class Initials_Default_Avatar_Admin {
 		add_action( 'admin_init',               array( $this, 'hook_admin_message'  )        );
 		add_action( 'wp_ajax_' . $this->notice, array( $this, 'admin_store_notice'  )        );
 		add_action( 'admin_enqueue_scripts',    array( $this, 'enqueue_scripts'     )        );
+
+		/** Network **********************************************************/
+
+		add_action( 'wpmu_options',        'initials_default_avatar_network_admin_settings_section' );
+		add_action( 'update_wpmu_options', 'initials_default_avatar_network_admin_save_settings'    );
 	}
 
 	/** Plugin ****************************************************************/
@@ -80,13 +85,27 @@ class Initials_Default_Avatar_Admin {
 	 */
 	public function register_settings() {
 
+		// Bail when the default is network-defined
+		if ( initials_default_avatar_is_network_default() ) {
+
+			// Modify single site settings pages
+			add_filter( 'avatar_defaults',       '__return_empty_array',              99 );
+			add_filter( 'default_avatar_select', '__return_empty_string',             99 );
+			add_filter( 'whitelist_options',     array( $this, 'whitelist_options' ), 99 );
+
+			return;
+		}
+
 		// Register settings field
 		add_settings_field(
 			'initials-default-avatar-service',
 			__( 'Initials Default Avatar', 'initials-default-avatar' ),
 			'initials_default_avatar_admin_setting_placeholder_service',
 			'discussion',
-			'avatars'
+			'avatars',
+			array(
+				'setting' => 'initials_default_avatar_service'
+			)
 		);
 
 		// Register setting for selected service with options
@@ -106,21 +125,54 @@ class Initials_Default_Avatar_Admin {
 		wp_register_style( 'initials-default-avatar-admin', initials_default_avatar()->assets_url . 'css/admin.css', array(), initials_default_avatar_get_version() );
 
 		// Bail if not on the discussion page
-		if ( 'options-discussion.php' !== $hook_suffix )
+		if ( 'options-discussion.php' !== $hook_suffix && ( is_network_admin() && 'settings.php' !== $hook_suffix ) )
 			return;
 
 		// Enqueue admin scripts 'n styles
 		wp_enqueue_script( 'initials-default-avatar-admin' );
 		wp_localize_script( 'initials-default-avatar-admin', 'initialsDefaultAvatarAdmin', array(
 			'settings' => array(
-				'avatarKey' => initials_default_avatar_get_avatar_key()
+				'avatarKey'      => initials_default_avatar_get_avatar_key(),
+				'networkDefault' => array(
+					'isActive' => initials_default_avatar_is_network_default(),
+					'heading'  => __( 'Avatars' ), // Using the default domain
+					'message'  => esc_html__( "Avatars are managed by the administrator of your site's network. There are no settings for you here.", 'initials-default-avatar' )
+				)
 			)
 		) );
-		wp_enqueue_style( 'initials-default-avatar-admin' );
 
-		// Enqueue color picker
-		wp_enqueue_script( 'wp-color-picker' );
-		wp_enqueue_style( 'wp-color-picker' );
+		// When the default is not network-defined
+		if ( ! initials_default_avatar_is_network_default() || is_network_admin() ) {
+			wp_enqueue_style( 'initials-default-avatar-admin' );
+
+			// Enqueue color picker
+			wp_enqueue_script( 'wp-color-picker' );
+			wp_enqueue_style( 'wp-color-picker' );
+		}
+	}
+
+	/**
+	 * Modify the options whitelist
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $options Options whitelist
+	 * @return array Options whitelist
+	 */
+	public function whitelist_options( $options ) {
+
+		// When the default is network-defined
+		if ( initials_default_avatar_is_network_default() ) {
+
+			// Un-whitelist avatar options
+			$options['discussion'] = array_diff( $options['discussion'], array(
+				'show_avatars',
+				'avatar_rating',
+				'avatar_default'
+			) );
+		}
+
+		return $options;
 	}
 
 	/** Admin *****************************************************************/

@@ -95,9 +95,25 @@ function initials_default_avatar_admin_sanitize_service_options( $input ) {
  * Output settings field for the placeholder service
  *
  * @since 1.0.0
+ *
+ * @param array $args Settings field arguments
  */
-function initials_default_avatar_admin_setting_placeholder_service() {
-	$selected = get_option( 'initials_default_avatar_service' ); ?>
+function initials_default_avatar_admin_setting_placeholder_service( $args = array() ) {
+
+	// Parse default arguments
+	$args = wp_parse_args( $args, array(
+		'setting'  => false,
+		'callback' => 'get_option'
+	) );
+
+	// Bail when without setting name
+	if ( empty( $args['setting'] ) )
+		return;
+
+	// Get selected value
+	$selected = call_user_func_array( $args['callback'], array( $args['setting'] ) );
+
+	?>
 
 	<div id="initials-default-avatar">
 		<p><?php esc_html_e( 'The generated images for the Initials avatars are requested from an external online placeholder service. You can choose from multiple services. These services are not affiliated with this plugin.', 'initials-default-avatar' ); ?></p>
@@ -115,7 +131,7 @@ function initials_default_avatar_admin_setting_placeholder_service() {
 			<span class="learn-more"><?php printf( esc_html__( 'See %s for more information.', 'initials-default-avatar' ), sprintf( '<a class="service-url" target="_blank" href="http://%1$s">%1$s</a>', $service ) ); ?></span>
 		</label>
 
-		<?php initials_default_avatar_admin_setting_service_options(); ?>
+		<?php initials_default_avatar_admin_setting_service_options( $selected ); ?>
 	</div>
 
 	<?php
@@ -126,8 +142,10 @@ function initials_default_avatar_admin_setting_placeholder_service() {
  *
  * @since 1.0.0
  */
-function initials_default_avatar_admin_setting_service_options() {
-	$current = initials_default_avatar_get_service();
+function initials_default_avatar_admin_setting_service_options( $current = '' ) {
+
+	// Get the selected service
+	$current = $current ? initials_default_avatar_get_service( $current ) : false;
 
 	// Define sample avatar details
 	$details = initials_default_avatar_get_avatar_details( 0, _x( 'Sample', 'default avatar display name', 'initials-default-avatar' ) );
@@ -137,7 +155,7 @@ function initials_default_avatar_admin_setting_service_options() {
 	foreach ( initials_default_avatar_get_services() as $service ) :
 
 		// Hide non-selected services
-		$style = ( $current->name !== $service->name ) ? 'style="display:none;"' : ''; ?>
+		$style = ( ! $current || $current->name !== $service->name ) ? 'style="display:none;"' : ''; ?>
 
 		<div id="service-<?php echo $service->name; ?>" class="service-options-wrap" <?php echo $style; ?>>
 			<h4 class="title"><?php esc_html_e( 'Service options', 'initials-default-avatar' ); ?></h4>
@@ -261,4 +279,131 @@ function initials_default_avatar_service_option_field( $service, $field, $args )
 
 	// Output break, input, label
 	echo apply_filters( 'initials_default_avatar_service_option_field', $_field, $service, $field, $args );
+}
+
+/** Network *******************************************************************/
+
+/**
+ * Return the network settings
+ *
+ * @since 1.1.0
+ *
+ * @uses apply_filters() Calls 'initials_default_avatar_network_admin_settings'
+ * @return array Network settings
+ */
+function initials_default_avatar_network_admin_settings() {
+	return (array) apply_filters( 'initials_default_avatar_network_admin_settings', array(
+
+		// Default avatar
+		'initials_default_avatar_network_default' => array(
+			'title'             => esc_html__( 'Network default', 'initials-default-avatar' ),
+			'callback'          => 'initials_default_avatar_admin_setting_callback_checkbox',
+			'sanitize_callback' => 'intval',
+			'args'              => array(
+				'setting'     => 'initials_default_avatar_network_default',
+				'description' => esc_html__( "Use the Initials avatar as your network's default avatar. Overrides any site settings.", 'initials-default-avatar' ),
+				'callback'    => 'get_site_option'
+			)
+		),
+
+		// Placeholder service
+		'initials_default_avatar_service' => array(
+			'title'             => esc_html__( 'Placeholder service', 'initials-default-avatar' ),
+			'callback'          => 'initials_default_avatar_admin_setting_placeholder_service',
+			'sanitize_callback' => 'initials_default_avatar_admin_sanitize_service',
+			'args'              => array(
+				'setting'     => 'initials_default_avatar_service',
+				'callback'    => 'get_site_option'
+			)
+		),
+
+		// Service options
+		'initials_default_avatar_service_options' => array(
+			'title'             => esc_html__( 'Service options', 'initials-default-avatar' ),
+			'callback'          => false,
+			'sanitize_callback' => 'initials_default_avatar_admin_sanitize_service_options',
+			'args'              => array()
+		)
+	) );
+}
+
+/**
+ * Display the network settings fields
+ *
+ * @since 1.1.0
+ */
+function initials_default_avatar_network_admin_settings_section() {
+
+	// Get the settings to render
+	$settings = initials_default_avatar_network_admin_settings();
+	$settings = wp_list_filter( $settings, array( 'callback' => false ), 'NOT' );
+
+	// Bail when there are no settings registered
+	if ( ! $settings )
+		return;
+
+	?>
+
+	<h2><?php esc_html_e( 'Initials Default Avatar Settings', 'initials-default-avatar' ); ?></h2>
+	<table id="menu" class="form-table">
+		<?php foreach ( $settings as $setting ) : ?>
+		<tr>
+			<th scope="row"><?php echo $setting['title']; ?></th>
+			<td><?php call_user_func_array( $setting['callback'], array( $setting['args'] ) ); ?></td>
+		</tr>
+		<?php endforeach; ?>
+	</table>
+
+	<?php
+}
+
+/**
+ * Save the plugin network settings
+ *
+ * @since 1.1.0
+ */
+function initials_default_avatar_network_admin_save_settings() {
+
+	// Walk all network settings
+	foreach ( initials_default_avatar_network_admin_settings() as $setting => $args ) {
+
+		// Get saved value
+		$value = isset( $_REQUEST[ $setting ] ) ? $_REQUEST[ $setting ] : null;
+
+		// Sanitize network value
+		if ( isset( $args['sanitize_callback'] ) ) {
+			$value = call_user_func_array( $args['sanitize_callback'], array( $value ) );
+		}
+
+		// Save sanitized value
+		update_site_option( $setting, $value );
+	}
+}
+
+/**
+ * Display the settings field for Network Default
+ *
+ * @since 1.1.0
+ *
+ * @param array $args Settings field arguments
+ */
+function initials_default_avatar_admin_setting_callback_checkbox( $args = array() ) {
+
+	// Parse default arguments
+	$args = wp_parse_args( $args, array(
+		'setting'     => false,
+		'description' => '',
+		'callback'    => 'get_option'
+	) );
+
+	// Bail when without setting name
+	if ( empty( $args['setting'] ) )
+		return;
+
+	?>
+
+	<input name="<?php echo $args['setting']; ?>" id="<?php echo $args['setting']; ?>" type="checkbox" value="1" <?php checked( 1, call_user_func_array( $args['callback'], array( $args['setting'] ) ) ); ?>/>
+	<label for="<?php echo $args['setting']; ?>"><?php echo $args['description']; ?></label>
+
+	<?php
 }
