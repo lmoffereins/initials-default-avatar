@@ -38,11 +38,11 @@ class Initials_Default_Avatar_BuddyPress {
 
 		// Buddypress
 		add_filter( 'bp_core_get_root_options', array( $this, 'get_root_options' )        );
-		add_filter( 'bp_core_fetch_avatar',     array( $this, 'get_avatar'       ), 10, 9 );
+		add_filter( 'bp_core_fetch_avatar',     array( $this, 'get_avatar'       ), 10, 2 );
 		add_filter( 'bp_core_fetch_avatar_url', array( $this, 'get_avatar_url'   ), 10, 2 );
 
 		// Avatar
-		add_filter( 'initials_default_avatar_user_name', array( $this, 'filter_avatar_name' ), 10, 4 );
+		add_filter( 'initials_default_avatar_user_name', array( $this, 'filter_avatar_name' ), 10, 2 );
 	}
 
 	/** Public methods **************************************************/
@@ -74,50 +74,49 @@ class Initials_Default_Avatar_BuddyPress {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @uses apply_filters() Calls 'initials_default_avatar_bp_get_avatar'
-	 *
 	 * @param string $avatar Avatar image html
 	 * @param array $args
 	 * @return string Avatar image html
 	 */
-	public function get_avatar( $avatar, $args, $item_id, $avatar_dir, $css_id, $html_width, $html_height, $avatar_folder_url, $avatar_folder_dir ) {
+	public function get_avatar( $avatar, $args ) {
 
 		// Get the data for this avatar
 		$data = $this->get_avatar_data( $avatar, $args );
-		if ( empty( $data ) )
-			return $avatar;
 
-		/** 
-		 * Inject avatar string with our class and src
-		 *
-		 * Since we cannot insert an image url with a querystring into the 
-		 * Gravatar's image src default query arg, we just completely rewrite it.
-		 */
-		$avatar = initials_default_avatar_build_avatar( $avatar, array( 'src' => $data['url'], 'class' => $data['class'] ) );
+		if ( $data && is_array( $data ) ) {
 
-		return apply_filters( 'initials_default_avatar_bp_get_avatar', $avatar, $args, $item_id, $avatar_dir, $css_id, $html_width, $html_height, $avatar_folder_url, $avatar_folder_dir );
+			/**
+			 * Inject avatar string with our class and src
+			 *
+			 * Because we cannot insert an image url with a querystring into the Gravatar's
+			 * image src default query arg, the easy way here is to just completely rewrite
+			 * the avatar image markup.
+			 */
+			$avatar = initials_default_avatar_build_avatar( $avatar, array( 'src' => $data['url'], 'class' => $data['class'] ) );
+		}
+
+		return $avatar;
 	}
 
 	/**
-	 * Filter BuddyPress avatar url for our default
+	 * Modify the BuddyPress avatar url
 	 *
 	 * @since 1.1.0
-	 *
-	 * @uses apply_filters() Calls 'initials_default_avatar_bp_get_avatar_url'
 	 * 
 	 * @param string $url Avatar url
-	 * @param array $args
+	 * @param array $args Optional. Avatar parameters.
 	 * @return string Avatar url
 	 */
-	public function get_avatar_url( $url, $args ) {
+	public function get_avatar_url( $url, $args = array() ) {
 
 		// Get the data for this avatar
 		$data = $this->get_avatar_data( $url, $args );
-		if ( empty( $data ) )
-			return $url;
 
-		// Filter non-html url
-		return apply_filters( 'initials_default_avatar_bp_get_avatar_url', $data['url'], $args );
+		if ( $data && is_array( $data ) ) {
+			$url = $data['url'];
+		}
+
+		return $url;
 	}
 
 	/**
@@ -125,14 +124,21 @@ class Initials_Default_Avatar_BuddyPress {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @param string $avatar Avatar
-	 * @param array $args Avatar args
+	 * @param string $avatar Avatar url
+	 * @param array $args Optional. Avatar parameters.
 	 * @return array Avatar data
 	 */
-	public function get_avatar_data( $avatar, $args ) {
+	public function get_avatar_data( $avatar, $args = array() ) {
+
+		// Bail when no context params are provided
+		if ( empty( $args ) || ! isset( $args['item_id'] ) )
+			return $avatar;
+
+		// Get default avatar name
+		$default = $this->get_default_avatar_name( $args['object'] );
 
 		// Bail when we're not serving the avatar default
-		if ( ! initials_default_avatar_is_initials_avatar( buddypress()->grav_default->{$args['object']} ) )
+		if ( ! initials_default_avatar_is_initials_avatar( $default ) )
 			return false;
 
 		// Since the avatar url could have been forged from uploaded images,
@@ -167,6 +173,31 @@ class Initials_Default_Avatar_BuddyPress {
 		);
 
 		return $data;
+	}
+
+	/**
+	 * Return the default avatar name
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param string $object Optional. BP object type. Defaults to 'user'.
+	 * @return string Avatar name
+	 */
+	public function get_default_avatar_name( $object = 'user' ) {
+
+		// Get BuddyPress
+		$bp = buddypress();
+
+		// Default to 'user'
+		if ( empty( $object ) ) {
+			$object = 'user';
+		}
+
+		$retval = ! empty( $bp->grav_default )
+			? $bp->grav_default->{$object}
+			: get_option( 'avatar_default' );
+
+		return $retval;
 	}
 
 	/**
