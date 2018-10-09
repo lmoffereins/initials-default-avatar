@@ -346,14 +346,17 @@ function initials_default_avatar_build_avatar( $avatar = '', $attrs = array() ) 
  *
  * @since 1.1.0
  *
- * @param array $data Avatar data
+ * @uses apply_filters() Calls 'initials_default_avatar_pre_get_avatar_data'
+ * @uses apply_filters() Calls 'initials_default_avatar_get_avatar_data'
+ *
+ * @param array $args Avatar arguments
  * @param mixed $id_or_email Avatar object identifier
  * @return array Avatar data
  */
-function initials_default_avatar_get_avatar_data( $data, $id_or_email ) {
+function initials_default_avatar_get_avatar_data( $args, $id_or_email ) {
 
 	// Parse defaults
-	$data = wp_parse_args( $data, array(
+	$args = $initial_data = wp_parse_args( $args, array(
 		'size'    => 96,
 		'default' => '',
 		'alt'     => '',
@@ -362,19 +365,36 @@ function initials_default_avatar_get_avatar_data( $data, $id_or_email ) {
 	) );
 
 	// Bail when we're not serving the avatar default
-	if ( ! initials_default_avatar_is_initials_avatar( $data['default'] ) )
-		return $data;
+	if ( ! initials_default_avatar_is_initials_avatar( $args['default'] ) )
+		return $args;
 
-	/**
-	 * NOTE: $data['found_avatar'] may be true, but it only says an email
-	 * was hashed from the $id_or_email var. We do not know if the avatar
-	 * really exists with the Gravatar service.
-	 */
+	// This is not the sample avatar, so we may have to bail...
+	if ( ! initials_default_avatar()->is_sample ) {
 
-	// Bail when we do not need step in because this is not the
-	// sample avatar, and there a valid gravatar was found.
-	if ( ! initials_default_avatar()->is_sample && $data['found_avatar'] && initials_default_avatar_is_valid_gravatar( $data['url'] ) )
-		return $data;
+		// ... when a non-gravatar was found
+		if ( false === strpos( 'gravatar.com', $args['url'] ) ) {
+			$bail = true;
+
+		/**
+		 * NOTE: $args['found_avatar'] may be true, but it only says an email
+		 * was hashed from the $id_or_email var. We do not know if the avatar
+		 * really exists with the Gravatar service.
+		 */
+
+		// ... when a valid gravatar was found
+		} elseif ( $args['found_avatar'] && initials_default_avatar_is_valid_gravatar( $args['url'] ) ) {
+			$bail = true;
+
+		// Default to false
+		} else {
+			$bail = false;
+		}
+
+		// Bail when the avatar should not be overwritten
+		if ( true === apply_filters( 'initials_default_avatar_pre_get_avatar_data', $bail, $args, $id_or_email ) ) {
+			return $args;
+		}
+	}
 
 	// Define local variable(s)
 	$user = $email = $name = false;
@@ -399,7 +419,7 @@ function initials_default_avatar_get_avatar_data( $data, $id_or_email ) {
 	} elseif ( is_object( $id_or_email ) && isset( $id_or_email->comment_ID ) ) {
 		$allowed_comment_types = apply_filters( 'get_avatar_comment_types', array( 'comment' ) );
 		if ( ! empty( $id_or_email->comment_type ) && ! in_array( $id_or_email->comment_type, (array) $allowed_comment_types ) ) {
-			return $data;
+			return $args;
 		}
 
 		if ( ! empty( $id_or_email->user_id ) ) {
@@ -422,11 +442,11 @@ function initials_default_avatar_get_avatar_data( $data, $id_or_email ) {
 	$details = initials_default_avatar_get_avatar_details( $user ? $user : $email, $name );
 
 	// Redefine avatar data
-	$data['found_avatar'] = false; // !
-	$data['url']          = initials_default_avatar_get_avatar_url  ( $details,       $data );
-	$data['class']        = initials_default_avatar_get_avatar_class( $data['class'], $data );
+	$args['found_avatar'] = false; // !
+	$args['url']          = initials_default_avatar_get_avatar_url  ( $details,       $args );
+	$args['class']        = initials_default_avatar_get_avatar_class( $args['class'], $args );
 
-	return $data;
+	return apply_filters( 'initials_default_avatar_get_avatar_data', $args, $initial_data, $id_or_email );
 }
 
 /**
