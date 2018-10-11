@@ -224,12 +224,14 @@ function initials_default_avatar_service_supports( $feature = '', $service = '' 
  * @return mixed Option value on success, null if not found
  */
 function initials_default_avatar_get_service_option( $option = '', $service = '' ) {
+
+	// Get the service
 	$service = initials_default_avatar_get_service( $service );
 	$option  = null;
 
 	// Continue if valid key
 	if ( $service && $option ) {
-		$options  = get_option( 'initials_default_avatar_options', array() );
+		$options  = get_option( 'initials_default_avatar_service_options', array() );
 
 		// Get option value
 		if ( isset( $options[ $service->name ] ) && isset( $options[ $service->name ][ $option ] ) ) {

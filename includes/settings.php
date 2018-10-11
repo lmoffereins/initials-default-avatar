@@ -209,8 +209,8 @@ function initials_default_avatar_service_option_field( $service, $field, $args )
 	$service = $service->name;
 
 	// Setup field atts
-	$id    = "initials-default-avatar-options-{$service}-{$field}";
-	$name  = "initials_default_avatar_options[{$service}][{$field}]";
+	$id    = "initials-default-avatar-service-options-{$service}-{$field}";
+	$name  = "initials_default_avatar_service_options[{$service}][{$field}]";
 	$value = initials_default_avatar_get_service_option( $field, $service );
 	if ( empty( $value ) ) {
 		$value = '';

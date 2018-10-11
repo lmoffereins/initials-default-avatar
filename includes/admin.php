@@ -109,8 +109,8 @@ class Initials_Default_Avatar_Admin {
 		);
 
 		// Register setting for selected service with options
-		register_setting( 'discussion', 'initials_default_avatar_service', 'initials_default_avatar_admin_sanitize_service'         );
-		register_setting( 'discussion', 'initials_default_avatar_options', 'initials_default_avatar_admin_sanitize_service_options' );
+		register_setting( 'discussion', 'initials_default_avatar_service', 'initials_default_avatar_admin_sanitize_service' );
+		register_setting( 'discussion', 'initials_default_avatar_service_options', 'initials_default_avatar_admin_sanitize_service_options' );
 	}
 
 	/**

@@ -181,12 +181,26 @@ function initials_default_avatar_version_updater() {
 	/** 1.1.x Branch ********************************************************/
 
 	// 1.1.0
-	if ( $raw_db_version < 20180930 ) {
-		// Do stuff
+	if ( $raw_db_version < 20181011 ) {
+		initials_default_avatar_update_110();
 	}
 
 	/** All done! ***********************************************************/
 
 	// Bump the version
 	initials_default_avatar_version_bump();
+}
+
+/**
+ * Run the update routine for verseion 1.1.0
+ *
+ * @since 1.1.0
+ */
+function initials_default_avatar_update_110() {
+
+	// Rename service options option
+	$option = get_option( 'initials_default_avatar_options' );
+	if ( $option ) {
+		update_option( 'initials_default_avatar_service_options', $option );
+	}
 }
