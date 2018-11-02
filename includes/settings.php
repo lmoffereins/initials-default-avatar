@@ -88,7 +88,14 @@ function initials_default_avatar_admin_sanitize_service_options( $input ) {
 		}
 	}
 
-	return apply_filters( 'initials_default_avatar_admin_sanitize_service_options', $value );
+	/**
+	 * Sanitize the service options
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $value Service options
+	 */
+	return (array) apply_filters( 'initials_default_avatar_admin_sanitize_service_options', $value );
 }
 
 /**
@@ -193,6 +200,8 @@ function initials_default_avatar_admin_setting_service_options( $current = '' ) 
  * @param array $args Option args
  */
 function initials_default_avatar_service_option_field( $service, $field, $args ) {
+
+	// Get current service
 	$service = initials_default_avatar_get_service( $service );
 
 	// Bail when the service does not exist
@@ -275,10 +284,21 @@ function initials_default_avatar_service_option_field( $service, $field, $args )
 	}
 
 	// Setup field with input label
-	$_field = "<label for='{$id}' class='option-{$args['type']}'>{$input} <span class='description'>{$label}</span></label>";
+	$markup = "<label for='{$id}' class='option-{$args['type']}'>{$input} <span class='description'>{$label}</span></label>";
 
-	// Output break, input, label
-	echo apply_filters( 'initials_default_avatar_service_option_field', $_field, $service, $field, $args );
+	/**
+	 * Filter the service option field
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $markup Option field markup
+	 * @param object $service Service data
+	 * @param string $field Field name
+	 * @param array $args Field arguments
+	 */
+	$markup = apply_filters( 'initials_default_avatar_service_option_field', $markup, $service, $field, $args );
+
+	echo $markup;
 }
 
 /** Network *******************************************************************/
@@ -292,6 +312,14 @@ function initials_default_avatar_service_option_field( $service, $field, $args )
  * @return array Network settings
  */
 function initials_default_avatar_network_admin_settings() {
+
+	/**
+	 * Filter the plugin network admin settings
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $args Network admin settings
+	 */
 	return (array) apply_filters( 'initials_default_avatar_network_admin_settings', array(
 
 		// Default avatar

@@ -430,6 +430,14 @@ final class Initials_Default_Avatar {
 	 * @return array Service objects
 	 */
 	public function get_services() {
+
+		/**
+		 * Filter the placeholder services
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array $services Placeholder services
+		 */
 		return (array) apply_filters( 'initials_default_avatar_services', $this->services );
 	}
 

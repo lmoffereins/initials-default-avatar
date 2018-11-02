@@ -196,6 +196,8 @@ function initials_default_avatar_get_services() {
  * @return bool Service supports the feature
  */
 function initials_default_avatar_service_supports( $feature = '', $service = '' ) {
+
+	// Get the service
 	$service = initials_default_avatar_get_service( $service );
 	$support = false;
 
@@ -211,6 +213,15 @@ function initials_default_avatar_service_supports( $feature = '', $service = '' 
 		}
 	}
 
+	/**
+	 * Filter whether the service feature is supported
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param bool $support Feature is supported
+	 * @param string $feature Feature name
+	 * @param object $service Service data
+	 */
 	return (bool) apply_filters( 'initials_default_avatar_service_supports', $support, $feature, $service );
 }
 
@@ -258,7 +269,7 @@ function initials_default_avatar_get_service_option( $option = '', $service = ''
  * @param string|int|object $id_or_email User identifier or comment object
  * @param string|int $size Avatar size
  * @param string $default Default avatar name
- * @param string|boolean $alt Alternative avatar text
+ * @param string|bool $alt Alternative avatar text
  * @return string $avatar
  */
 function initials_default_avatar_get_avatar( $avatar, $id_or_email, $size, $default, $alt ) {
@@ -284,6 +295,16 @@ function initials_default_avatar_get_avatar( $avatar, $id_or_email, $size, $defa
 		'class' => $data['class']
 	) );
 
+	/**
+	 * Filter the avatar image element
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $avatar Image element
+	 * @param mixed $id_or_email Avatar identifier
+	 * @param string|int $size Avatar size
+	 * @param string|bool $alt Alternative avatar text
+	 */
 	return apply_filters( 'initials_default_avatar_get_avatar', $avatar, $id_or_email, $size, $alt );
 }
 
@@ -305,7 +326,14 @@ function initials_default_avatar_build_avatar( $avatar = '', $attrs = array() ) 
 	if ( empty( $avatar ) || empty( $attrs ) )
 		return false;
 
-	$attrs = apply_filters( 'initials_default_avatar_setup_avatar_attrs', (array) $attrs );
+	/**
+	 * Filter the avatar image attributes
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array Image attributes
+	 */
+	$attrs = (array) apply_filters( 'initials_default_avatar_setup_avatar_attrs', (array) $attrs );
 
 	// Define DOMDocument elements
 	$img = '';
@@ -417,7 +445,18 @@ function initials_default_avatar_get_avatar_owner( $id_or_email ) {
 		'name'        => $name
 	);
 
-	return apply_filters( 'initials_default_avatar_get_avatar_owner', $retval, $id_or_email, $user, $email, $name );
+	/**
+	 * Filter the avatar owner
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param object $retval Avatar owner
+	 * @param mixed $id_or_email Avatar identifier
+	 * @param WP_User|bool $user User object or False when not found
+	 * @param string $email Email address or False when not found
+	 * @param string $name Avatar owner name
+	 */
+	return (object) apply_filters( 'initials_default_avatar_get_avatar_owner', $retval, $id_or_email, $user, $email, $name );
 }
 
 /**
@@ -460,7 +499,13 @@ function initials_default_avatar_get_avatar_data( $args, $id_or_email ) {
 		 * really exists with the Gravatar service.
 		 */
 
-		// ... when a valid gravatar was found
+		/**
+		 * ... when a valid gravatar was found
+		 *
+		 * We need to check if we're not going to unintentionally overwrite a
+		 * vallid gravatar. This is done by calling the Gravatar service once
+		 * to see whether the account is recognised and returns a valid response.
+		 */
 		} elseif ( $args['found_avatar'] && initials_default_avatar_is_valid_gravatar( $args['url'] ) ) {
 			$bail = true;
 
@@ -469,8 +514,16 @@ function initials_default_avatar_get_avatar_data( $args, $id_or_email ) {
 			$bail = false;
 		}
 
-		// Bail when the avatar should not be overwritten
-		if ( true === apply_filters( 'initials_default_avatar_pre_get_avatar_data', $bail, $args, $id_or_email ) ) {
+		/**
+		 * Filter when the avatar should not be overwritten
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param bool $bail Whether to not overwrite the avatar
+		 * @param array $args Avatar arguments
+		 * @param mixed $id_or_email Avatar identifier
+		 */
+		if ( true === (bool) apply_filters( 'initials_default_avatar_pre_get_avatar_data', $bail, $args, $id_or_email ) ) {
 			return $args;
 		}
 	}
@@ -483,7 +536,16 @@ function initials_default_avatar_get_avatar_data( $args, $id_or_email ) {
 	$args['url']          = initials_default_avatar_get_avatar_url  ( $details,       $args );
 	$args['class']        = initials_default_avatar_get_avatar_class( $args['class'], $args );
 
-	return apply_filters( 'initials_default_avatar_get_avatar_data', $args, $initial_data, $id_or_email );
+	/**
+	 * Filter the avatar data
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $args Modified avatar data
+	 * @param array $initial_data Initial avatar data
+	 * @param mixed $id_or_email Avatar identifier
+	 */
+	return (array) apply_filters( 'initials_default_avatar_get_avatar_data', $args, $initial_data, $id_or_email );
 }
 
 /**
@@ -502,7 +564,7 @@ function initials_default_avatar_get_avatar_data( $args, $id_or_email ) {
  */
 function initials_default_avatar_is_valid_gravatar( $avatar ) {
 
-	// Get IDA
+	// Get the plugin
 	$plugin = initials_default_avatar();
 
 	// Bail when the user chose to pass this test, but we might be overwritin'
@@ -562,7 +624,14 @@ function initials_default_avatar_get_avatar_details( $id_or_email = 0 ) {
  * @return string $avatar
  */
 function initials_default_avatar_get_avatar_url( $details, $args, $service = '' ) {
+
+	// Get the service
 	$service = initials_default_avatar_get_service( $service );
+
+	// Bail when the service wasn't found
+	if ( ! $service ) {
+		return '';
+	}
 
 	$size = $args['size'];
 
@@ -652,7 +721,16 @@ function initials_default_avatar_get_avatar_url( $details, $args, $service = '' 
 	// Setup the avatar url
 	$url = $service->url;
 
-	// Filter src arguments
+	/**
+	 * Filter avatar url construct arguments
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $args Avatar url construct arguments
+	 * @param object $service Service data
+	 * @param array $details Avatar details
+	 * @param string|int $size Avatar size
+	 */
 	$url_args = (array) apply_filters( 'initials_default_avatar_avatar_src_args', $args, $service, $details, $size );
 
 	// Fill all url variables
@@ -667,6 +745,17 @@ function initials_default_avatar_get_avatar_url( $details, $args, $service = '' 
 		}
 	}
 
+	/**
+	 * Filter the constructed avatar service url
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $url Avatar url
+	 * @param object $service Service data
+	 * @param array $details Avatar details
+	 * @param string|int $size Avatar size
+	 * @param array $args Avatar arguments
+	 */
 	return apply_filters( 'initials_default_avatar_avatar_src', $url, $service, $details, $size, $args );
 }
 
@@ -681,6 +770,8 @@ function initials_default_avatar_get_avatar_url( $details, $args, $service = '' 
  * @return string Classes
  */
 function initials_default_avatar_get_avatar_class( $class, $args, $service = '' ) {
+
+	// Get the service
 	$service = initials_default_avatar_get_service( $service );
 
 	// Collect avatar classes
@@ -694,7 +785,16 @@ function initials_default_avatar_get_avatar_class( $class, $args, $service = '' 
 			"service-{$service->name}"
 		) );
 
-		$classes = apply_filters( 'initials_default_avatar_avatar_class', $classes, $args, $service );
+		/**
+		 * Filter the avatar class list
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array $classes Class list
+		 * @param array $args Avatar arguments
+		 * @param object $service Service data
+		 */
+		$classes = (array) apply_filters( 'initials_default_avatar_avatar_class', $classes, $args, $service );
 		$classes = array_map( 'sanitize_html_class', array_unique( array_filter( $classes ) ) );
 		$class   = implode( ' ', $classes );
 	}
@@ -738,6 +838,14 @@ function initials_default_avatar_get_first_char( $string = '' ) {
 	// Get the first safe character
 	$char = mb_substr( $string, 0, 1, 'utf-8' );
 
+	/**
+	 * Filter the first character of a string
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $char First character
+	 * @param string $string Input string
+	 */
 	return apply_filters( 'initials_default_avatar_get_first_char', $char, $string );
 }
 
