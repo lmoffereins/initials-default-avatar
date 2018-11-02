@@ -444,74 +444,78 @@ final class Initials_Default_Avatar {
 	 * @uses apply_filters() Calls 'initials_default_avatar_user_data'
 	 * @uses apply_filters() Calls 'initials_default_avatar_get_avatar_details'
 	 * 
-	 * @param int|string $avatar_id Avatar identifier
-	 * @param string $name Suggested avatar holder name
+	 * @param mixed $id_or_email Avatar identifier
 	 * @return array Avatar details
 	 */
-	public function get_avatar_details( $avatar_id = 0, $name = '' ) {
-		$user = false;
+	public function get_avatar_details( $id_or_email = '' ) {
 
-		// Accept WP_User objects
-		if ( $avatar_id instanceof WP_User ) {
-			$user = $avatar_id;
-			$avatar_id = $avatar_id->ID;
-		}
+		// Check whether the details are already generated
+		$details = $this->_get_avatar_details( $id_or_email );
 
-		// Is avatar not yet created? Let's do this then
-		if ( ! $details = $this->_get_avatar_details( $avatar_id ) ) {
+		// Create avatar when not found
+		if ( ! $details ) {
 
-			// User
-			if ( $avatar_id && is_numeric( $avatar_id ) ) {
-				if ( ! $user ) {
-					$user = get_user_by( 'id', (int) $avatar_id );
-				}
-				if ( empty( $name ) && $user ) {
-					$name = trim( $user->first_name . ' ' . $user->last_name );
-					if ( empty( $name ) ) {
-						$name = ! empty( $user->display_name ) ? $user->display_name : $user->user_login;
-					}
-				}
+			// Get the avatar owner
+			$owner = initials_default_avatar_get_avatar_owner( $id_or_email );
 
-			// Email address
-			} elseif ( empty( $name ) && is_email( $avatar_id ) ) {
-				$name = $avatar_id;
-			}
-
-			// Filter name for back-compat
-			$name = apply_filters( 'initials_default_avatar_user_name', $name, $avatar_id );
+			/**
+			 * Filter avatar owner name for back-compat
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param string $name Avatar owner name
+			 * @param int|string $id Avatar owner id
+			 */
+			$name = (string) apply_filters( 'initials_default_avatar_user_name', $owner->name, $owner->id );
 
 			// Default to the unknown
-			if ( empty( $name ) ) {
-				$name = _x( 'X', 'Initial(s) for the unknown', 'initials-default-avatar' );
-			}
+			$owner->name = ! empty( $name ) ? $name : _x( 'X', 'Initial(s) for the unknown', 'initials-default-avatar' );
 
 			// Define base details
 			$details             = initials_default_avatar_generate_colors();
-			$details['id']       = $avatar_id;
+			$details['owner']    = $owner;
 			$details['initials'] = initials_default_avatar_get_initials( $name );
 
-			// Filter details for back-compat
-			$details = apply_filters( 'initials_default_avatar_user_data', $details, $avatar_id, $name );
+			/**
+			 * Filter avatar details for back-compat
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param array $details Avatar details
+			 * @param int|string $id Avatar owner id
+			 * @param string $id Avatar owner name
+			 */
+			$details = (array) apply_filters( 'initials_default_avatar_user_data', $details, $owner->id, $owner->name );
 
-			// Set avatar details
-			$this->avatars[ $avatar_id ] = $details;
+			// Add avatar details
+			$this->avatars[] = $details;
 		}
 
-		// Filter and return avatar details
-		return apply_filters( 'initials_default_avatar_get_avatar_details', $details, $avatar_id, $name, $user );
+		/**
+		 * Filter and return avatar details
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param array $details Avatar details
+		 * @param object $owner Avatar owner
+		 */
+		return (array) apply_filters( 'initials_default_avatar_get_avatar_details', $details, $details['owner'] );
 	}
 
 	/**
-	 * Return avatar details internallly
+	 * Return registered avatar details from local cache
 	 *
 	 * @since 1.1.0
 	 * 
-	 * @param int|string $id Avatar key
-	 * @return array Avatar details
+	 * @param mixed $id_or_email Avatar identifier
+	 * @return array|bool Avatar details or False when not found
 	 */
-	private function _get_avatar_details( $id ) {
-		if ( isset( $this->avatars[ $id ] ) ) {
-			return (array) $this->avatars[ $id ];
+	private function _get_avatar_details( $id_or_email ) {
+		$owners = wp_list_pluck( $this->avatars, 'owner' );
+		$found  = $owners ? array_search( $id_or_email, wp_list_pluck( $owners, 'id_or_email' ) ) : false;
+
+		if ( $found ) {
+			return $this->avatars[ $found ];
 		} else {
 			return false;
 		}

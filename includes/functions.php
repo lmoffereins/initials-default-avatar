@@ -344,6 +344,83 @@ function initials_default_avatar_build_avatar( $avatar = '', $attrs = array() ) 
 }
 
 /**
+ * Find the owner attributes belonging to an avatar
+ *
+ * @see get_avatar_data()
+ *
+ * @since 1.1.0
+ *
+ * @uses apply_filters() Calls 'initials_default_avatar_get_avatar_owner'
+ *
+ * @param mixed $id_or_email Avatar identifier
+ * @return object Avatar owner attributes
+ */
+function initials_default_avatar_get_avatar_owner( $id_or_email ) {
+
+	// Define local variable(s)
+	$user = $email = $name = false;
+
+	// Process the user identifier.
+	if ( is_numeric( $id_or_email ) ) {
+		$user = get_user_by( 'id', absint( $id_or_email ) );
+
+	// Email address
+	} elseif ( is_string( $id_or_email ) ) {
+		$email = $id_or_email;
+
+	// User Object
+	} elseif ( $id_or_email instanceof WP_User ) {
+		$user = $id_or_email;
+
+	// Post Object
+	} elseif ( $id_or_email instanceof WP_Post ) {
+		$user = get_user_by( 'id', (int) $id_or_email->post_author );
+
+	// Comment Object
+	} elseif ( is_object( $id_or_email ) && isset( $id_or_email->comment_ID ) ) {
+		$allowed_comment_types = apply_filters( 'get_avatar_comment_types', array( 'comment' ) );
+		if ( ! empty( $id_or_email->comment_type ) && ! in_array( $id_or_email->comment_type, (array) $allowed_comment_types ) ) {
+			return $args;
+		}
+
+		if ( ! empty( $id_or_email->user_id ) ) {
+			$user = get_user_by( 'id', (int) $id_or_email->user_id );
+		}
+		if ( ( ! $user || is_wp_error( $user ) ) && ! empty( $id_or_email->comment_author_email ) ) {
+			$email = $id_or_email->comment_author_email;
+			if ( ! empty( $id_or_email->comment_author ) ) {
+				$name = $id_or_email->comment_author;
+			}
+		}
+	}
+
+	// Does this email belong to an existing user?
+	if ( ! $user && $email ) {
+		$user = get_user_by( 'email', $email );
+	}
+
+	// Construct user name
+	$exists = is_a( $user, 'WP_User' ) && $user->exists();
+	if ( $exists ) {
+		$name = trim( $user->first_name . ' ' . $user->last_name );
+		if ( empty( $name ) ) {
+			$name = ! empty( $user->display_name ) ? $user->display_name : $user->user_login;
+		}
+	}
+
+	// Construct the return variable
+	$retval = (object) array(
+		'id_or_email' => $id_or_email,
+		'id'          => $exists ? $user->ID           : $id_or_email,
+		'email'       => $exists ? $user->user_email   : $email,
+		'user'        => $exists ? $user               : false,
+		'name'        => $name
+	);
+
+	return apply_filters( 'initials_default_avatar_get_avatar_owner', $retval, $id_or_email, $user, $email, $name );
+}
+
+/**
  * Return avatar data when we serve a default avatar
  *
  * @since 1.1.0
@@ -398,50 +475,8 @@ function initials_default_avatar_get_avatar_data( $args, $id_or_email ) {
 		}
 	}
 
-	// Define local variable(s)
-	$user = $email = $name = false;
-
-	// Process the user identifier.
-	if ( is_numeric( $id_or_email ) ) {
-		$user = get_user_by( 'id', absint( $id_or_email ) );
-
-	// Email address
-	} elseif ( is_string( $id_or_email ) ) {
-		$email = $id_or_email;
-
-	// User Object
-	} elseif ( $id_or_email instanceof WP_User ) {
-		$user = $id_or_email;
-
-	// Post Object
-	} elseif ( $id_or_email instanceof WP_Post ) {
-		$user = get_user_by( 'id', (int) $id_or_email->post_author );
-
-	// Comment Object
-	} elseif ( is_object( $id_or_email ) && isset( $id_or_email->comment_ID ) ) {
-		$allowed_comment_types = apply_filters( 'get_avatar_comment_types', array( 'comment' ) );
-		if ( ! empty( $id_or_email->comment_type ) && ! in_array( $id_or_email->comment_type, (array) $allowed_comment_types ) ) {
-			return $args;
-		}
-
-		if ( ! empty( $id_or_email->user_id ) ) {
-			$user = get_user_by( 'id', (int) $id_or_email->user_id );
-		}
-		if ( ( ! $user || is_wp_error( $user ) ) && ! empty( $id_or_email->comment_author_email ) ) {
-			$email = $id_or_email->comment_author_email;
-			if ( ! empty( $id_or_email->comment_author ) ) {
-				$name = $id_or_email->comment_author;
-			}
-		}
-	}
-
-	// Do we know this email?
-	if ( ! $user && $email ) {
-		$user = get_user_by( 'email', $email );
-	}
-
 	// Get avatar details
-	$details = initials_default_avatar_get_avatar_details( $user ? $user : $email, $name );
+	$details = initials_default_avatar_get_avatar_details( $id_or_email );
 
 	// Redefine avatar data
 	$args['found_avatar'] = false; // !
@@ -509,12 +544,11 @@ function initials_default_avatar_is_valid_gravatar( $avatar ) {
  *
  * @since 1.1.0
  *
- * @param int|string $avatar_id Avatar identifier
- * @param string $name Suggested avatar holder name
+ * @param mixed $id_or_email Avatar identifier
  * @return array Avatar details
  */
-function initials_default_avatar_get_avatar_details( $avatar_id = 0, $name = '' ) {
-	return initials_default_avatar()->get_avatar_details( $avatar_id, $name );
+function initials_default_avatar_get_avatar_details( $id_or_email = 0 ) {
+	return initials_default_avatar()->get_avatar_details( $id_or_email );
 }
 
 /**
