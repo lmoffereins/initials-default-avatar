@@ -14,7 +14,7 @@
 	}
 
 	// Get our settings field
-	var $ida = $('#initials-default-avatar');
+	var $ida = $('#initials-default-avatar-wrapper');
 
 	// Setup WordPress color pickers. Hide picker labels
 	$ida.find('.ida-wp-color-picker').wpColorPicker();
@@ -100,7 +100,7 @@
 
 	var networkAdmin = $( 'body' ).is( '.network-admin' ),
 	    avatar_default = networkAdmin ? $( 'input[name="initials_default_avatar_network_default"]' ) : $( 'input[name="avatar_default"]' ),
-	    settings_field = $( '#initials-default-avatar' ).parents( 'tr' ).first();
+	    settings_field = $( '#initials-default-avatar-wrapper' ).parents( 'tr' ).first();
 
 	/**
 	 * Return whether the avatar default is selected

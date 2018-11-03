@@ -122,7 +122,7 @@ function initials_default_avatar_admin_setting_placeholder_service( $args = arra
 
 	?>
 
-	<div id="initials-default-avatar">
+	<div id="initials-default-avatar-wrapper">
 		<p><?php esc_html_e( 'The generated images for the Initials avatars are requested from an external online placeholder service. You can choose from multiple services. These services are not affiliated with this plugin.', 'initials-default-avatar' ); ?></p>
 
 		<label for="placeholder-service">

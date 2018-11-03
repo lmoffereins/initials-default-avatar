@@ -5,15 +5,15 @@
  * @subpackage Administration
  */
 
-#initials-default-avatar p {
+#initials-default-avatar-wrapper p {
 	margin-bottom: 1em;
 }
 
-#initials-default-avatar .avatar-preview {
+#initials-default-avatar-wrapper .avatar-preview {
 	float: left;
 	margin-right: 10px;
 }
 
-#initials-default-avatar .service-options {
+#initials-default-avatar-wrapper .service-options {
 	float: left;
 }
