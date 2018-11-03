@@ -35,6 +35,7 @@ class Initials_Default_Avatar_Admin {
 	 */
 	private function setup_globals() {
 		$this->notice = 'initials-default-avatar_notice';
+		$this->minimum_capability = initials_default_avatar_is_network_default() ? 'manage_network_options' : 'manage_options';
 	}
 
 	/**
@@ -43,11 +44,16 @@ class Initials_Default_Avatar_Admin {
 	 * @since 1.1.0
 	 */
 	private function setup_actions() {
-		add_action( 'plugin_action_links',      array( $this, 'plugin_action_links' ), 10, 2 );
-		add_action( 'admin_init',               array( $this, 'register_settings'   )        );
-		add_action( 'admin_init',               array( $this, 'hook_admin_message'  )        );
-		add_action( 'wp_ajax_' . $this->notice, array( $this, 'admin_store_notice'  )        );
-		add_action( 'admin_enqueue_scripts',    array( $this, 'enqueue_scripts'     )        );
+
+		add_action( 'plugin_action_links',               array( $this, 'plugin_action_links' ), 10, 2 );
+		add_filter( 'network_admin_plugin_action_links', array( $this, 'plugin_action_links' ), 10, 2 );
+
+		/** Core *************************************************************/
+
+		add_action( 'admin_init',               array( $this, 'register_settings'  ) );
+		add_action( 'admin_init',               array( $this, 'hook_admin_message' ) );
+		add_action( 'wp_ajax_' . $this->notice, array( $this, 'admin_store_notice' ) );
+		add_action( 'admin_enqueue_scripts',    array( $this, 'enqueue_scripts'    ) );
 
 		/** Network **********************************************************/
 
@@ -63,14 +69,20 @@ class Initials_Default_Avatar_Admin {
 	 * @since 1.0.0
 	 * 
 	 * @param array $links
-	 * @param string $file Plugin basename
+	 * @param string $basename Plugin basename
 	 * @return array Links
 	 */
-	public function plugin_action_links( $links, $file ) {
+	public function plugin_action_links( $links, $basename ) {
 
-		// Add links to our plugin actions
-		if ( initials_default_avatar()->basename === $file ) {
-			$links['settings'] = '<a href="' . admin_url( 'options-discussion.php' ) . '">' . esc_html__( 'Settings', 'initials-default-avatar' ) . '</a>';
+		// Add plugin action links fot this plugin
+		if ( $basename === initials_default_avatar()->basename && current_user_can( $this->minimum_capability ) ) {
+
+			// Determine admin url
+			$admin_url = initials_default_avatar_is_network_default() || is_network_admin()
+				? network_admin_url( 'settings.php#initials-default-avatar' )
+				: admin_url( 'options-discussion.php' );
+
+			$links['settings'] = '<a href="' . esc_url( $admin_url ) . '">' . esc_html__( 'Settings', 'initials-default-avatar' ) . '</a>';
 		}
 
 		return $links;

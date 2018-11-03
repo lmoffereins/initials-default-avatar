@@ -372,7 +372,7 @@ function initials_default_avatar_network_admin_settings_section() {
 
 	?>
 
-	<h2><?php esc_html_e( 'Initials Default Avatar Settings', 'initials-default-avatar' ); ?></h2>
+	<h2 id="initials-default-avatar"><?php esc_html_e( 'Initials Default Avatar Settings', 'initials-default-avatar' ); ?></h2>
 	<table id="menu" class="form-table">
 		<?php foreach ( $settings as $setting ) : ?>
 		<tr>
