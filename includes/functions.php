@@ -439,7 +439,7 @@ function initials_default_avatar_get_avatar_owner( $id_or_email ) {
 	// Construct the return variable
 	$retval = (object) array(
 		'id_or_email' => $id_or_email,
-		'id'          => $exists ? $user->ID           : $id_or_email,
+		'id'          => $exists ? $user->ID           : ( $email ? $email : $id_or_email ),
 		'email'       => $exists ? $user->user_email   : $email,
 		'user'        => $exists ? $user               : false,
 		'name'        => $name

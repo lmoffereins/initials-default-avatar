@@ -49,6 +49,14 @@ final class Initials_Default_Avatar {
 	public $is_sample = false;
 
 	/**
+	 * Cache for owners that are mapped from an `$id_or_email`
+	 *
+	 * @since 2.0.0
+	 * @var array
+	 */
+	private $owners = array();
+
+	/**
 	 * Holds all users on the page with their avatar params (colors)
 	 *
 	 * @since 1.0.0
@@ -457,14 +465,19 @@ final class Initials_Default_Avatar {
 	 */
 	public function get_avatar_details( $id_or_email = '' ) {
 
+		// Define return variable
+		$details = array( 'owner' => false );
+
+		// Get avatar owner by identifier
+		$owner = $this->_get_avatar_owner( $id_or_email, true );
+
 		// Check whether the details are already generated
-		$details = $this->_get_avatar_details( $id_or_email );
+		if ( $owner ) {
+			$details = $this->_get_avatar_details( $id_or_email );
+		}
 
 		// Create avatar when not found
-		if ( ! $details ) {
-
-			// Get the avatar owner
-			$owner = initials_default_avatar_get_avatar_owner( $id_or_email );
+		if ( ! $details && $owner ) {
 
 			/**
 			 * Filter avatar owner name for back-compat
@@ -477,10 +490,13 @@ final class Initials_Default_Avatar {
 			$name = (string) apply_filters( 'initials_default_avatar_user_name', $owner->name, $owner->id );
 
 			// Default to the unknown
-			$owner->name = ! empty( $name ) ? $name : _x( 'X', 'Initial(s) for the unknown', 'initials-default-avatar' );
+			$owner->name = ! empty( $name )
+				? $name
+				: _x( 'X', 'Initial(s) for the unknown', 'initials-default-avatar' );
 
 			// Define base details
 			$details             = initials_default_avatar_generate_colors();
+			$details['id']       = $owner->id;
 			$details['owner']    = $owner;
 			$details['initials'] = initials_default_avatar_get_initials( $name );
 
@@ -516,16 +532,61 @@ final class Initials_Default_Avatar {
 	 * @since 1.1.0
 	 * 
 	 * @param mixed $id_or_email Avatar identifier
-	 * @return array|bool Avatar details or False when not found
+	 * @return array|bool Avatar details or False when not found.
 	 */
 	private function _get_avatar_details( $id_or_email ) {
-		$owners = wp_list_pluck( $this->avatars, 'owner' );
-		$found  = $owners ? array_search( $id_or_email, wp_list_pluck( $owners, 'id_or_email' ) ) : false;
 
-		if ( $found ) {
+		// Get owner from identifier
+		$owner = $this->_get_avatar_owner( $id_or_email );
+
+		// Find avatar details by owner id
+		$found = $owner ? array_search( $owner->id, wp_list_pluck( $this->avatars, 'id' ) ) : false;
+
+		if ( false !== $found ) {
 			return $this->avatars[ $found ];
 		} else {
-			return false;
+				return false;
+		}
+	}
+
+	/**
+	 * Get the avatar owner matching the provided avatar identifier
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param mixed $id_or_email Avatar identifier
+	 * @param bool $setup Optional. Setup owner when not found. Defaults to False.
+	 * @return array|bool Owner data or False when not found.
+	 */
+	private function _get_avatar_owner( $id_or_email, $setup = false ) {
+
+		// Find identifier in owners list
+		$id_or_emails = wp_list_pluck( $this->owners, 'id_or_email' );
+		$found        = $id_or_emails ? array_search( $id_or_email, $id_or_emails ) : false;
+
+		// Owner not found
+		if ( false === $found ) {
+
+			// Create owner from identifier
+			if ( $setup ) {
+
+				// Get owner data
+				$owner = initials_default_avatar_get_avatar_owner( $id_or_email );
+
+				// Add to owners list
+				$this->owners[] = array(
+					'id_or_email' => $id_or_email,
+					'owner'       => $owner
+				);
+			} else {
+				$owner = false;
+			}
+
+			return $owner;
+
+		// Return matched owner
+		} else {
+			return $this->owners[ $found ]['owner'];
 		}
 	}
 
