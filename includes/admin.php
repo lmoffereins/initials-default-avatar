@@ -14,14 +14,14 @@ if ( ! class_exists( 'Initials_Default_Avatar_Admin' ) ) :
 /**
  * The Initials Default Avatar Admin class
  *
- * @since 1.1.0
+ * @since 2.0.0
  */
 class Initials_Default_Avatar_Admin {
 
 	/**
 	 * Setup this class
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 */
 	public function __construct() {
 		$this->setup_globals();
@@ -31,7 +31,7 @@ class Initials_Default_Avatar_Admin {
 	/**
 	 * Define default class globals
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 */
 	private function setup_globals() {
 		$this->notice = 'initials-default-avatar_notice';
@@ -41,7 +41,7 @@ class Initials_Default_Avatar_Admin {
 	/**
 	 * Define default actions and filters
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 */
 	private function setup_actions() {
 
@@ -166,7 +166,7 @@ class Initials_Default_Avatar_Admin {
 	/**
 	 * Modify the options whitelist
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param array $options Options whitelist
 	 * @return array Options whitelist
@@ -271,7 +271,7 @@ class Initials_Default_Avatar_Admin {
 /**
  * Setup the plugin admin class
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @uses Initials_Default_Avatar_Admin
  */

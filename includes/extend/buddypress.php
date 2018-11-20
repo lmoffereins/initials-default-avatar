@@ -14,14 +14,14 @@ if ( ! class_exists( 'Initials_Default_Avatar_BuddyPress' ) ) :
 /**
  * The main plugin class
  *
- * @since 1.1.0
+ * @since 2.0.0
  */
 class Initials_Default_Avatar_BuddyPress {
 
 	/**
 	 * Setup the class
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 */
 	public function __construct() {
 		$this->setup_actions();
@@ -32,7 +32,7 @@ class Initials_Default_Avatar_BuddyPress {
 	/**
 	 * Setup default actions and filters
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 */
 	private function setup_actions() {
 
@@ -53,7 +53,7 @@ class Initials_Default_Avatar_BuddyPress {
 	 * Prefetched site options are queried without the usual option filters, so
 	 * here we need to mimic option filters.
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param array $options Site options
 	 * @return array Site options
@@ -72,7 +72,7 @@ class Initials_Default_Avatar_BuddyPress {
 	/**
 	 * Filter BuddyPress avatar for our default
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param string $avatar Avatar image html
 	 * @param array $args
@@ -101,7 +101,7 @@ class Initials_Default_Avatar_BuddyPress {
 	/**
 	 * Modify the BuddyPress avatar url
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 * 
 	 * @param string $url Avatar url
 	 * @param array $args Optional. Avatar parameters.
@@ -122,7 +122,7 @@ class Initials_Default_Avatar_BuddyPress {
 	/**
 	 * Return the avatar data for BuddyPress avatars
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param string $avatar Avatar url
 	 * @param array $args Optional. Avatar parameters.
@@ -178,7 +178,7 @@ class Initials_Default_Avatar_BuddyPress {
 	/**
 	 * Return the default avatar name
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param string $object Optional. BP object type. Defaults to 'user'.
 	 * @return string Avatar name
@@ -203,7 +203,7 @@ class Initials_Default_Avatar_BuddyPress {
 	/**
 	 * Filter the name of the current avatar
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param string $name Avatar name
 	 * @param int|string $avatar_id Avatar ID
@@ -234,7 +234,7 @@ class Initials_Default_Avatar_BuddyPress {
 /**
  * Return single instance of this main plugin class
  *
- * @since 1.1.0
+ * @since 2.0.0
  * 
  * @uses Initials_Default_Avatar_BuddyPress
  */

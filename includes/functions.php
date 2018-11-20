@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Output the plugin version
  *
- * @since 1.1.0
+ * @since 2.0.0
  */
 function initials_default_avatar_version() {
 	echo initials_default_avatar_get_version();
@@ -24,7 +24,7 @@ function initials_default_avatar_version() {
 	/**
 	 * Return the plugin version
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @return string The plugin version
 	 */
@@ -35,7 +35,7 @@ function initials_default_avatar_version() {
 /**
  * Output the plugin database version
  *
- * @since 1.1.0
+ * @since 2.0.0
  */
 function initials_default_avatar_db_version() {
 	echo initials_default_avatar_get_db_version();
@@ -44,7 +44,7 @@ function initials_default_avatar_db_version() {
 	/**
 	 * Return the plugin database version
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @return string The plugin version
 	 */
@@ -55,7 +55,7 @@ function initials_default_avatar_db_version() {
 /**
  * Output the plugin database version directly from the database
  *
- * @since 1.1.0
+ * @since 2.0.0
  */
 function initials_default_avatar_db_version_raw() {
 	echo initials_default_avatar_get_db_version_raw();
@@ -64,7 +64,7 @@ function initials_default_avatar_db_version_raw() {
 	/**
 	 * Return the plugin database version directly from the database
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @return string The current plugin version
 	 */
@@ -77,7 +77,7 @@ function initials_default_avatar_db_version_raw() {
 /**
  * Return the plugin's avatar key
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @return string Avatar key
  */
@@ -88,7 +88,7 @@ function initials_default_avatar_get_avatar_key() {
 /**
  * Return whether the plugin's avatar is set as the default
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @return bool Avatar is the default
  */
@@ -99,7 +99,7 @@ function initials_default_avatar_is_initials_default() {
 /**
  * Return whether the given avatar key is the plugin's avatar
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @param string $avatar_key Avatar key to check
  * @return bool Is this the plugin's avatar?
@@ -113,7 +113,7 @@ function initials_default_avatar_is_initials_avatar( $avatar_key = '' ) {
 /**
  * Register a single placeholder service
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @param string $service Service name
  * @param array $args Service arguments, {@see Initials_Default_Avatar::register_service()}.
@@ -126,7 +126,7 @@ function initials_default_avatar_register_service( $service, $args = array() ) {
 /**
  * Unregister a single placeholder service
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @param string $service Service name
  * @return bool Service was unregistered
@@ -138,7 +138,7 @@ function initials_default_avatar_unregister_service( $service ) {
 /**
  * Return the selected placeholder service data
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @param string $service Optional. Service name. Defaults to the current service.
  * @return object|bool Service data or False when not found
@@ -176,7 +176,7 @@ function initials_default_avatar_get_service( $service = '' ) {
 /**
  * Return all registered placeholder services
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @return array Services
  */
@@ -187,7 +187,7 @@ function initials_default_avatar_get_services() {
 /**
  * Return whether a service supports the feature
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @uses apply_filters() Calls 'initials_default_avatar_service_supports'
  *
@@ -216,7 +216,7 @@ function initials_default_avatar_service_supports( $feature = '', $service = '' 
 	/**
 	 * Filter whether the service feature is supported
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param bool $support Feature is supported
 	 * @param string $feature Feature name
@@ -228,7 +228,7 @@ function initials_default_avatar_service_supports( $feature = '', $service = '' 
 /**
  * Return the requested service option
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @param string $option Option name
  * @param string $service Optional. Service name. Defaults to the current service.
@@ -261,7 +261,7 @@ function initials_default_avatar_get_service_option( $option = '', $service = ''
  * For WP pre-4.2, external default services besides Gravatar cannot insert their own
  * image source, so we'll replace the image src and class attributes with DOMDocument.
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @uses apply_filters() Calls 'initials_default_avatar_get_avatar'
  *
@@ -311,7 +311,7 @@ function initials_default_avatar_get_avatar( $avatar, $id_or_email, $size, $defa
 /**
  * Return avatar string with inserted attributes
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @uses apply_filters() Calls 'initials_default_avatar_setup_avatar_attrs'
  * @uses DOMDocument
@@ -376,7 +376,7 @@ function initials_default_avatar_build_avatar( $avatar = '', $attrs = array() ) 
  *
  * @see get_avatar_data()
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @uses apply_filters() Calls 'initials_default_avatar_get_avatar_owner'
  *
@@ -448,7 +448,7 @@ function initials_default_avatar_get_avatar_owner( $id_or_email ) {
 	/**
 	 * Filter the avatar owner
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param object $retval Avatar owner
 	 * @param mixed $id_or_email Avatar identifier
@@ -462,7 +462,7 @@ function initials_default_avatar_get_avatar_owner( $id_or_email ) {
 /**
  * Return avatar data when we serve a default avatar
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @uses apply_filters() Calls 'initials_default_avatar_pre_get_avatar_data'
  * @uses apply_filters() Calls 'initials_default_avatar_get_avatar_data'
@@ -517,7 +517,7 @@ function initials_default_avatar_get_avatar_data( $args, $id_or_email ) {
 		/**
 		 * Filter when the avatar should not be overwritten
 		 *
-		 * @since 1.1.0
+		 * @since 2.0.0
 		 *
 		 * @param bool $bail Whether to not overwrite the avatar
 		 * @param array $args Avatar arguments
@@ -557,7 +557,7 @@ function initials_default_avatar_get_avatar_data( $args, $id_or_email ) {
  * image Gravatar will send us back. So first, we'll ask Gravatar if it
  * knows the current email. If not, guaranteed we'll recieve a default.
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @param string $avatar HTML image or image url
  * @return bool Whether the given avatar is a valid gravatar
@@ -604,7 +604,7 @@ function initials_default_avatar_is_valid_gravatar( $avatar ) {
 /**
  * Return the details of the given avatar (user)
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @param mixed $id_or_email Avatar identifier
  * @return array Avatar details
@@ -616,7 +616,7 @@ function initials_default_avatar_get_avatar_details( $id_or_email = 0 ) {
 /**
  * Setup and return the avatar url
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @param array $details Avatar details. See Initials_Default_Avatar::get_avatar_details()
  * @param array $args Avatar data args
@@ -762,7 +762,7 @@ function initials_default_avatar_get_avatar_url( $details, $args, $service = '' 
 /**
  * Return the avatar class attribute value
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @param string $class Current avatar classes
  * @param array $args Avatar arguments
@@ -805,7 +805,7 @@ function initials_default_avatar_get_avatar_class( $class, $args, $service = '' 
 /**
  * Return the first characters of all the name's words
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @param string $name Name to get initials from
  * @return string Initials
@@ -822,7 +822,7 @@ function initials_default_avatar_get_initials( $name ) {
 /**
  * Return the first character (letter or number) of a string
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @uses apply_filters() Calls 'initials_default_avatar_get_first_char'
  *
@@ -852,7 +852,7 @@ function initials_default_avatar_get_first_char( $string = '' ) {
 /**
  * Return randomly generated avatar colors
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @return array Background color and font color
  */
@@ -874,7 +874,7 @@ function initials_default_avatar_generate_colors() {
 /**
  * Return whether this plugin should provide default avatars network-wide
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @return bool Is network default active?
  */
@@ -887,7 +887,7 @@ function initials_default_avatar_is_network_default() {
 /**
  * Act on plugin deactivation
  *
- * @since 1.1.0
+ * @since 2.0.0
  */
 function initials_default_avatar_deactivate() {
 

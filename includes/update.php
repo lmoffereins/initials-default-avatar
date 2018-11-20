@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * If there is no raw DB version, this is the first installation
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @return bool True if update, False if not
  */
@@ -24,7 +24,7 @@ function initials_default_avatar_is_install() {
 /**
  * Compare the plugin version to the DB version to determine if updating
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @return bool True if update, False if not
  */
@@ -41,7 +41,7 @@ function initials_default_avatar_is_update() {
  * Note that this function currently is not used in the plugin's core and is here
  * for third party plugins to use to check for plugin activation.
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @return bool True if activating the plugin, false if not
  */
@@ -91,7 +91,7 @@ function initials_default_avatar_is_activation( $basename = '' ) {
 /**
  * Determine if the plugin is being deactivated
  *
- * @since 1.1.0
+ * @since 2.0.0
  * 
  * @return bool True if deactivating the plugin, false if not
  */
@@ -141,7 +141,7 @@ function initials_default_avatar_is_deactivation( $basename = '' ) {
 /**
  * Update the DB to the latest version
  *
- * @since 1.1.0
+ * @since 2.0.0
  */
 function initials_default_avatar_version_bump() {
 	update_option( 'initials_default_avatar_db_version', initials_default_avatar_get_db_version() );
@@ -150,7 +150,7 @@ function initials_default_avatar_version_bump() {
 /**
  * Setup the plugin updater
  *
- * @since 1.1.0
+ * @since 2.0.0
  */
 function initials_default_avatar_setup_updater() {
 
@@ -169,7 +169,7 @@ function initials_default_avatar_setup_updater() {
  * This is most-often used when the data schema changes, but should also be used
  * to correct issues with plugin meta-data silently on software update.
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @todo Log update event
  */
@@ -194,7 +194,7 @@ function initials_default_avatar_version_updater() {
 /**
  * Run the update routine for verseion 1.1.0
  *
- * @since 1.1.0
+ * @since 2.0.0
  */
 function initials_default_avatar_update_110() {
 

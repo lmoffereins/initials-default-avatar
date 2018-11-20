@@ -306,7 +306,7 @@ function initials_default_avatar_service_option_field( $service, $field, $args )
 /**
  * Return the network settings
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @uses apply_filters() Calls 'initials_default_avatar_network_admin_settings'
  * @return array Network settings
@@ -316,7 +316,7 @@ function initials_default_avatar_network_admin_settings() {
 	/**
 	 * Filter the plugin network admin settings
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param array $args Network admin settings
 	 */
@@ -358,7 +358,7 @@ function initials_default_avatar_network_admin_settings() {
 /**
  * Display the network settings fields
  *
- * @since 1.1.0
+ * @since 2.0.0
  */
 function initials_default_avatar_network_admin_settings_section() {
 
@@ -388,7 +388,7 @@ function initials_default_avatar_network_admin_settings_section() {
 /**
  * Save the plugin network settings
  *
- * @since 1.1.0
+ * @since 2.0.0
  */
 function initials_default_avatar_network_admin_save_settings() {
 
@@ -411,7 +411,7 @@ function initials_default_avatar_network_admin_save_settings() {
 /**
  * Display the settings field for Network Default
  *
- * @since 1.1.0
+ * @since 2.0.0
  *
  * @param array $args Settings field arguments
  */

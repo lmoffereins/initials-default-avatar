@@ -20,7 +20,7 @@ if ( 'initials-default-avatar/initials-default-avatar.php' === WP_UNINSTALL_PLUG
 /**
  * Fires before uninstalling this plugin
  *
- * @since 1.1.0
+ * @since 2.0.0
  */
 do_action( 'initials_default_avatar_pre_uninstall' );
 
@@ -44,6 +44,6 @@ foreach ( array(
 /**
  * Fires after uninstalling this plugin
  *
- * @since 1.1.0
+ * @since 2.0.0
  */
 do_action( 'initials_default_avatar_post_uninstall' );

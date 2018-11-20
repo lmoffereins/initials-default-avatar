@@ -75,7 +75,7 @@ final class Initials_Default_Avatar {
 	/**
 	 * Collection of registerd services
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 * @var array
 	 */
 	private $services = array();
@@ -91,7 +91,7 @@ final class Initials_Default_Avatar {
 	/**
 	 * Holds all processed email hashes
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 * @var array
 	 */
 	public $email_hashes = array();
@@ -165,7 +165,7 @@ final class Initials_Default_Avatar {
 	/**
 	 * Include the required files
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 */
 	private function requires() {
 
@@ -248,7 +248,7 @@ final class Initials_Default_Avatar {
 	/**
 	 * Magic getter
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param string $key Property key
 	 * @return mixed|null Property value or null when not found
@@ -286,7 +286,7 @@ final class Initials_Default_Avatar {
 	 *  - lorempics.com: no text
 	 *  - xoart.link: no color backgrounds
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 */
 	public function register_services() {
 
@@ -371,7 +371,7 @@ final class Initials_Default_Avatar {
 	/**
 	 * Register a single placeholder service
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param string $service Service name
 	 * @param array $args {
@@ -415,7 +415,7 @@ final class Initials_Default_Avatar {
 	/**
 	 * Unregister a single placeholder service
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param string $service Service name
 	 * @return bool Service was unregistered
@@ -432,7 +432,7 @@ final class Initials_Default_Avatar {
 	/**
 	 * Return all registered placeholder services
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @uses apply_filters() Calls 'initials_default_avatar_services'
 	 * @return array Service objects
@@ -454,7 +454,7 @@ final class Initials_Default_Avatar {
 	/**
 	 * Return the details of the given avatar (user)
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @uses apply_filters() Calls 'initials_default_avatar_user_name'
 	 * @uses apply_filters() Calls 'initials_default_avatar_user_data'
@@ -518,7 +518,7 @@ final class Initials_Default_Avatar {
 		/**
 		 * Filter and return avatar details
 		 *
-		 * @since 1.1.0
+		 * @since 2.0.0
 		 *
 		 * @param array $details Avatar details
 		 * @param object $owner Avatar owner
@@ -612,7 +612,7 @@ final class Initials_Default_Avatar {
 	/**
 	 * Modify early the option for 'show_avatars'
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param mixed $retval Option value
 	 * @return mixed Option value
@@ -630,7 +630,7 @@ final class Initials_Default_Avatar {
 	/**
 	 * Modify early the option for 'avatar_default'
 	 *
-	 * @since 1.1.0
+	 * @since 2.0.0
 	 *
 	 * @param mixed $retval Option value
 	 * @return mixed Option value
@@ -667,7 +667,7 @@ final class Initials_Default_Avatar {
 /**
  * Return single instance of this main plugin class
  *
- * @since 1.1.0
+ * @since 2.0.0
  * 
  * @return Initials_Default_Avatar
  */
