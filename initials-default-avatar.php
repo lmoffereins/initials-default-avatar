@@ -33,7 +33,7 @@ if ( ! class_exists( 'Initials_Default_Avatar' ) ) :
 final class Initials_Default_Avatar {
 
 	/**
-	 * Holds initials default avatar key
+	 * The avatar key for this plugin
 	 *
 	 * @since 1.0.0
 	 * @var string
@@ -65,7 +65,7 @@ final class Initials_Default_Avatar {
 	private $avatars = array();
 
 	/**
-	 * The selected placeholder service name
+	 * The actvive placeholder service name
 	 *
 	 * @since 1.0.0
 	 * @var bool|string
