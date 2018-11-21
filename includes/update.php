@@ -178,11 +178,11 @@ function initials_default_avatar_version_updater() {
 	// Get the raw database version
 	$raw_db_version = (int) initials_default_avatar_get_db_version_raw();
 
-	/** 1.1.x Branch ********************************************************/
+	/** 2.0.x Branch ********************************************************/
 
-	// 1.1.0
+	// 2.0.0
 	if ( $raw_db_version < 20181011 ) {
-		initials_default_avatar_update_110();
+		initials_default_avatar_update_2_0_0();
 	}
 
 	/** All done! ***********************************************************/
@@ -192,11 +192,11 @@ function initials_default_avatar_version_updater() {
 }
 
 /**
- * Run the update routine for verseion 1.1.0
+ * Run the update routine for version 2.0.0
  *
  * @since 2.0.0
  */
-function initials_default_avatar_update_110() {
+function initials_default_avatar_update_2_0_0() {
 
 	// Rename service options option
 	$option = get_option( 'initials_default_avatar_options' );
