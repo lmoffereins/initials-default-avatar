@@ -202,5 +202,6 @@ function initials_default_avatar_update_2_0_0() {
 	$option = get_option( 'initials_default_avatar_options' );
 	if ( $option ) {
 		update_option( 'initials_default_avatar_service_options', $option );
+		delete_option( 'initials_default_avatar_options' );
 	}
 }
