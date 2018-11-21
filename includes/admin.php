@@ -145,6 +145,7 @@ class Initials_Default_Avatar_Admin {
 		wp_localize_script( 'initials-default-avatar-admin', 'initialsDefaultAvatarAdmin', array(
 			'settings' => array(
 				'avatarKey'      => initials_default_avatar_get_avatar_key(),
+				'enableToggler'  => ! initials_default_avatar_is_network_default() || is_network_admin(),
 				'networkDefault' => array(
 					'isActive' => initials_default_avatar_is_network_default(),
 					'heading'  => __( 'Avatars' ), // Using the default domain

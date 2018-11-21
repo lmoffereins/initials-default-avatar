@@ -93,8 +93,8 @@
  */
 ( function( $ ) {
 
-	// Bail when the default is network-defined
-	if ( initialsDefaultAvatarAdmin.settings.networkDefault.isActive ) {
+	// Bail when we're not toggling settings
+	if ( ! initialsDefaultAvatarAdmin.settings.enableToggler ) {
 		return;
 	}
 
