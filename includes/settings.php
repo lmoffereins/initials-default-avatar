@@ -329,7 +329,7 @@ function initials_default_avatar_network_admin_settings() {
 			'sanitize_callback' => 'intval',
 			'args'              => array(
 				'setting'     => 'initials_default_avatar_network_default',
-				'description' => esc_html__( "Use the Initials avatar as your network's default avatar. Overrides any site settings.", 'initials-default-avatar' ),
+				'description' => esc_html__( "Use the Initials avatar as your network's default avatar. Overrides any site avatar settings.", 'initials-default-avatar' ),
 				'callback'    => 'get_site_option'
 			)
 		),
