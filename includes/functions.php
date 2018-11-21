@@ -147,7 +147,10 @@ function initials_default_avatar_get_service( $service = '' ) {
 
 	// Default to current service
 	if ( empty( $service ) ) {
-		$service = get_option( 'initials_default_avatar_service' );
+		$service = call_user_func_array(
+			initials_default_avatar_is_network_default() ? 'get_site_option' : 'get_option',
+			array( 'initials_default_avatar_service' )
+		);
 	}
 
 	$services = initials_default_avatar_get_services();
@@ -242,7 +245,10 @@ function initials_default_avatar_get_service_option( $option = '', $service = ''
 
 	// Continue if valid key
 	if ( $service && $option ) {
-		$options  = get_option( 'initials_default_avatar_service_options', array() );
+		$options = call_user_func_array(
+			initials_default_avatar_is_network_default() ? 'get_site_option' : 'get_option',
+			array( 'initials_default_avatar_service_options', array() )
+		);
 
 		// Get option value
 		if ( isset( $options[ $service->name ] ) && isset( $options[ $service->name ][ $option ] ) ) {
