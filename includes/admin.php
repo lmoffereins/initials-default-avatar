@@ -34,7 +34,7 @@ class Initials_Default_Avatar_Admin {
 	 * @since 2.0.0
 	 */
 	private function setup_globals() {
-		$this->gravatar_notice = 'initials-default-avatar_gravatar_notice';
+		$this->gravatar_notice = initials_default_avatar_gravatar_notice_key();
 		$this->minimum_capability = initials_default_avatar_is_network_default() ? 'manage_network_options' : 'manage_options';
 	}
 

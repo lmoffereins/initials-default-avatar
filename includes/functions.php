@@ -549,6 +549,17 @@ function initials_default_avatar_get_avatar_data( $args, $id_or_email ) {
 }
 
 /**
+ * Return the key of the Gravatar.com connection notice
+ *
+ * @since 2.0.0
+ *
+ * @return string Notice key
+ */
+function initials_default_avatar_gravatar_notice_key() {
+	return 'initials-default-avatar_gravatar_notice';
+}
+
+/**
  * Check if we're not overwriting a valid Gravatar
  *
  * Since we don't know yet if we're here for a default avatar fallback or 
@@ -567,8 +578,9 @@ function initials_default_avatar_is_valid_gravatar( $avatar ) {
 	// Get the plugin
 	$plugin = initials_default_avatar();
 
-	// Bail when the user chose to pass this test, but we might be overwritin'
-	if ( get_option( $plugin->notice ) )
+	// Bail when the Gravatar.com failed connection notice was acknowledged.
+	// Note: we might be overwriting valid gravatars from here on.
+	if ( get_transient( initials_default_avatar_gravatar_notice_key() ) )
 		return false;
 
 	// Read the {/avatar/email_hash} part from the current avatar
@@ -891,8 +903,8 @@ function initials_default_avatar_is_network_default() {
  */
 function initials_default_avatar_deactivate() {
 
-	// Remove notice option
-	delete_option( initials_default_avatar()->notice );
+	// Remove notice transient
+	delete_transient( initials_default_avatar_gravatar_notice_key() );
 
 	// Restore previous avatar default
 	if ( initials_default_avatar_is_initials_default() ) {
