@@ -34,7 +34,7 @@ class Initials_Default_Avatar_Admin {
 	 * @since 2.0.0
 	 */
 	private function setup_globals() {
-		$this->notice = 'initials-default-avatar_notice';
+		$this->gravatar_notice = 'initials-default-avatar_gravatar_notice';
 		$this->minimum_capability = initials_default_avatar_is_network_default() ? 'manage_network_options' : 'manage_options';
 	}
 
@@ -50,10 +50,10 @@ class Initials_Default_Avatar_Admin {
 
 		/** Core *************************************************************/
 
-		add_action( 'admin_init',               array( $this, 'register_settings'  ) );
-		add_action( 'admin_init',               array( $this, 'hook_admin_message' ) );
-		add_action( 'wp_ajax_' . $this->notice, array( $this, 'admin_store_notice' ) );
-		add_action( 'admin_enqueue_scripts',    array( $this, 'enqueue_scripts'    ) );
+		add_action( 'admin_init',                       array( $this, 'register_settings'          ) );
+		add_action( 'admin_init',                       array( $this, 'hook_admin_gravatar_notice' ) );
+		add_action( "wp_ajax_{$this->gravatar_notice}", array( $this, 'save_admin_gravatar_notice' ) );
+		add_action( 'admin_enqueue_scripts',            array( $this, 'enqueue_scripts'            ) );
 
 		/** Network **********************************************************/
 
@@ -190,81 +190,71 @@ class Initials_Default_Avatar_Admin {
 	/** Admin *****************************************************************/
 
 	/**
-	 * Hook admin error when system cannot connect to Gravatar.com
+	 * Hook admin notice when the connection to Gravatar.com failed
 	 *
 	 * @since 1.0.0
 	 */
-	public function hook_admin_message() {
+	public function hook_admin_gravatar_notice() {
 
 		// Bail if user cannot (de)activate plugins
-		if ( ! current_user_can( 'activate_plugins' ) || get_option( $this->notice ) ) 
+		if ( ! current_user_can( 'activate_plugins' ) || get_transient( $this->gravatar_notice ) )
 			return;
 
-		$user = get_userdata( get_current_user_id() );
+		// Check Gravatar.com for a response
+		$user     = get_userdata( get_current_user_id() );
+		$response = wp_remote_head( sprintf( 'http://%d.gravatar.com/avatar/%s?d=404', hexdec( $user->user_email ) % 2, md5( $user->user_email ) ) );
 
-		// Check if the system can connect to Gravatar.com
-		if ( $response = wp_remote_head( sprintf( 'http://%d.gravatar.com/avatar/%s?d=404', hexdec( $user->user_email ) % 2, md5( $user->user_email ) ) ) ) {
-			
-			// Connection failed
-			if ( is_wp_error( $response ) ) {
-				add_action( 'admin_notices', array( $this, 'admin_notice' ) );		
+		// Connection failed, hook the admin notice
+		if ( $response && is_wp_error( $response ) ) {
+
+			// Site notice
+			add_action( 'admin_notices', array( $this, 'site_admin_gravatar_notice' ) );
+
+			// Network notice
+			if ( initials_default_avatar_is_network_default() ) {
+				add_action( 'network_admin_notices', array( $this, 'site_admin_gravatar_notice' ) );
 			}
 		}
 	}
 
 	/**
-	 * Output admin message to remind user of Gravatar.com connectivity fail
+	 * Output admin notice that the connection to Gravatar.com failed
 	 *
 	 * @since 1.0.0
 	 */
-	public function admin_notice() { ?>
+	public function site_admin_gravatar_notice() { ?>
 
-		<div id="initials-default-avatar_notice">
-			<div id="initials-default-avatar_note1" class="error">
-				<p>
-					<?php esc_html_e( 'It seems that your site cannot connect to gravatar.com to check user profiles. Note that Initials Default Avatar may overwrite a valid gravatar with a default avatar.', 'initials-default-avatar' ); ?>
-					<a class="dismiss" href="#"><?php esc_html_e( 'Accept', 'initials-default-avatar' ); ?></a><img class="hidden" src="<?php echo admin_url('/images/wpspin_light.gif'); ?>" style="vertical-align: middle; margin-left: 3px;" />
-					<script type="text/javascript">
-						jQuery(document).ready( function($){
-							var $this = $('#initials-default-avatar_note1');
-							$this.on('click', '.dismiss', function(e){
-								e.preventDefault();
-								$this.find('.hidden').show();
-								$.post( ajaxurl, { 'action': '<?php echo $this->notice; ?>' }, function(){
-									$this.hide().siblings('.error').show();
-								} );
-							});
-						});
-					</script>
-				</p>
-			</div>
+		<div id="<?php echo $this->gravatar_notice; ?>" class="notice error is-dismissible">
+			<p><?php esc_html_e( 'It seems that your site cannot connect to gravatar.com to check user profiles. Note that Initials Default Avatar may overwrite a valid gravatar with a default avatar.', 'initials-default-avatar' ); ?></p>
 
-			<div id="initials-default-avatar_note2" class="error hidden">
-				<p>
-					<?php esc_html_e( 'Initials Default Avatar has calls to gravatar.com now disabled. Reactivate the plugin to undo.', 'initials-default-avatar' ); ?>
-					<a class="close" href="#"><?php esc_html_e( 'Close', 'initials-default-avatar' ); ?></a>
-					<script type="text/javascript">
-						jQuery(document).ready( function($){
-							$('#initials-default-avatar_note2').on('click', 'close', function(e){
-								e.preventDefault();
-								$('#initials-default-avatar_notice').remove();
-							});
+			<script type="text/javascript">
+				(function( $ ) {
+					/* global ajaxurl */
+					$( '#<?php echo $this->gravatar_notice; ?>' ).on( 'click', '.notice-dismiss', function() {
+						$.post( ajaxurl, {
+							"action": '<?php echo $this->gravatar_notice; ?>',
+							"_ajax_nonce": '<?php echo wp_create_nonce( $this->gravatar_notice ); ?>'
 						});
-					</script>
-				</p>
-			</div>
+					});
+				})( jQuery );
+			</script>
 		</div>
 
 		<?php
 	}
 
 	/**
-	 * Store notice option in database
+	 * Store Gravatar notice option
 	 *
 	 * @since 1.0.0
 	 */
-	public function admin_store_notice() {
-		update_option( $this->notice, true );
+	public function save_admin_gravatar_notice() {
+
+		// Verify intent
+		check_ajax_referer( $this->gravatar_notice );
+
+		// Update transient for a day
+		set_transient( $this->gravatar_notice, true, DAY_IN_SECONDS );
 	}
 }
 
