@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Initials Default Avatar\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-30 13:37+0000\n"
+"POT-Creation-Date: 2018-11-21 08:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -14,91 +14,109 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/"
 
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:455
-msgid "Accept"
-msgstr ""
-
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:474
-msgid "Close"
-msgstr ""
-
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:678
-msgctxt "default avatar display name"
-msgid "Sample"
-msgstr ""
-
-#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/services.php:105
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:358
 msgid "Font"
 msgstr ""
 
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:749
-msgid "Font size in percentage"
-msgstr ""
-
-#. Author URI of the plugin
-msgid "https://github.com/lmoffereins"
-msgstr ""
-
-#. URI of the plugin
-msgid "https://github.com/lmoffereins/initials-default-avatar"
-msgstr ""
-
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:309
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:495
 msgctxt "Initial(s) for the unknown"
 msgid "X"
 msgstr ""
 
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:510
+#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:604
 msgid "Initials (Generated)"
 msgstr ""
 
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/admin.php:85
+msgid "Settings"
+msgstr ""
+
 #. Name of the plugin
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:565
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/admin.php:114
 msgid "Initials Default Avatar"
 msgstr ""
 
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:473
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/admin.php:152
 msgid ""
-"Initials Default Avatar has calls to gravatar.com now disabled. Reactivate "
-"the plugin to undo."
+"Avatars are managed by the administrator of your site's network. There are "
+"no settings for you here."
 msgstr ""
 
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:454
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/admin.php:229
 msgid ""
 "It seems that your site cannot connect to gravatar.com to check user "
 "profiles. Note that Initials Default Avatar may overwrite a valid gravatar "
 "with a default avatar."
 msgstr ""
 
-#. Author of the plugin
-msgid "Laurens Offereins"
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/settings.php:126
+msgid ""
+"The generated images for the Initials avatars are requested from an external "
+"online placeholder service. You can choose from multiple services. These "
+"services are not affiliated with this plugin."
 msgstr ""
 
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:657
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/settings.php:130
+msgid "Select a service"
+msgstr ""
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/settings.php:137
+msgid "Select a placeholder service."
+msgstr ""
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/settings.php:138
 #, php-format
 msgid "See %s for more information."
 msgstr ""
 
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:656
-msgid "Select a placeholder service."
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/settings.php:158
+msgctxt "default avatar display name"
+msgid "Sample"
 msgstr ""
 
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:649
-msgid "Select a service"
-msgstr ""
-
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:763
-msgid "Select an option"
-msgstr ""
-
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:688
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/settings.php:168
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/settings.php:350
 msgid "Service options"
 msgstr ""
 
-#: ../../../../src/wp-content/plugins/initials-default-avatar/initials-default-avatar.php:547
-msgid "Settings"
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/settings.php:231
+msgid "Font size in percentage"
+msgstr ""
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/settings.php:245
+msgid "Select an option"
+msgstr ""
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/settings.php:327
+msgid "Network default"
+msgstr ""
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/settings.php:332
+msgid ""
+"Use the Initials avatar as your network's default avatar. Overrides any site "
+"avatar settings."
+msgstr ""
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/settings.php:339
+msgid "Placeholder service"
+msgstr ""
+
+#: ../../../../src/wp-content/plugins/initials-default-avatar/includes/settings.php:375
+msgid "Initials Default Avatar Settings"
 msgstr ""
 
 #. Description of the plugin
 msgid "Use colorful inital-based default avatars"
+msgstr ""
+
+#. URI of the plugin
+msgid "https://github.com/lmoffereins/initials-default-avatar"
+msgstr ""
+
+#. Author of the plugin
+msgid "Laurens Offereins"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://github.com/lmoffereins"
 msgstr ""
