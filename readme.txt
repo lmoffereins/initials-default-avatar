@@ -1,7 +1,7 @@
 === Initials Default Avatar ===
 Contributors: offereins
 Tags: avatar, default, initials, initial, color, placeholder, happy, letter
-Requires at least: 3.3
+Requires at least: 4.2
 Tested up to: 4.9.8
 Stable tag: 1.0.0
 License: GPLv3 or later
@@ -39,6 +39,12 @@ This plugin is not hosted in the official WordPress repository. Instead, updatin
 1. Initials are based on the user display name as selected on the user profile page. For unregistered commenters the comment author name is used.
 
 == Changelog ==
+
+= 2.0.0 =
+* Added network option to set the Initials avatar as the avatar default for your multisite sites
+* Added placeholder service: Fakeimg.pl
+* Updated internal plugin structure. Some filters are renamed
+* Removed placeholder services: Cambelt.co, Placebox.es, Imageholdr.com, getdummyimage.com
 
 = 1.0.0 =
 * Initial release

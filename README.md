@@ -4,7 +4,7 @@ Use colorful initial-based default avatars
 
 ## Description ##
 
-> This WordPress plugin requires at least [WordPress](https://wordpress.org) 3.3.
+> This WordPress plugin requires at least [WordPress](https://wordpress.org) 4.2.
 
 Default avatars are used to display an image for users and commenters that have no Gravatar registered. Out of the box WordPress provides default avatars based on abstract images or other generated content. Alternatively, this plugin provides default avatars in the style of user pictures as seen in Gmail and other digital user services. Using the user initials, the colorful generated avatars provide a fresh alternative when visually identifying users.
 
