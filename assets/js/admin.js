@@ -9,31 +9,33 @@
 ( function( $ ) {
 
 	// Bail when the default is network-defined
-	if ( initialsDefaultAvatarAdmin.settings.networkDefault.isActive ) {
+	if ( ! initialsDefaultAvatarAdmin.settings.enabled ) {
 		return;
 	}
 
 	// Get our settings field
-	var $ida = $('#initials-default-avatar-wrapper');
+	var $ida = $( '#initials-default-avatar-wrapper' );
 
 	// Setup WordPress color pickers. Hide picker labels
-	$ida.find('.ida-wp-color-picker').wpColorPicker();
+	$ida.find( '.ida-wp-color-picker' ).wpColorPicker();
 
 	// On placeholder service selection change
-	$ida.find('#placeholder-service').on( 'change', function() {
+	$ida.find( '#placeholder-service' ).on( 'change', function() {
 		var $this   = $(this),
 		    service = $this.val(),
 		    dot     = service.indexOf( '.' ),
-		    opts    = $ida.find('.service-options-wrap');
+		    opts    = $ida.find( '.service-options-wrap' );
 
 		// Change learn-more link src and text
 		if ( service.length > 0 ) {
 			$this.parent()
-				.find('.learn-more').show()
-					.find('.service-url').attr({ 'href': 'http://' + service }).text( service );
+				.find( '.learn-more' ).show()
+					.find( '.service-url' ).attr({
+						'href': 'http://' + service
+					}).text( service );
 		} else {
 			$this.parent()
-				.find('.learn-more').hide();
+				.find( '.learn-more' ).hide();
 		}
 
 		// Backslash single dot in service name
@@ -43,7 +45,7 @@
 		}
 
 		// Hide all service options and show selected one
-		opts.hide().filter('#service-' + service).show();
+		opts.hide().filter( '#service-' + service ).show();
 	});
 
 	/**
@@ -94,7 +96,7 @@
 ( function( $ ) {
 
 	// Bail when we're not toggling settings
-	if ( ! initialsDefaultAvatarAdmin.settings.enableToggler ) {
+	if ( ! initialsDefaultAvatarAdmin.settings.enabled ) {
 		return;
 	}
 
