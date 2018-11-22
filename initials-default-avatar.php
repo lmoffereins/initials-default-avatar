@@ -498,7 +498,7 @@ final class Initials_Default_Avatar {
 			$details             = initials_default_avatar_generate_colors();
 			$details['id']       = $owner->id;
 			$details['owner']    = $owner;
-			$details['initials'] = initials_default_avatar_get_initials( $name );
+			$details['initials'] = initials_default_avatar_get_initials( $owner->name );
 
 			/**
 			 * Filter avatar details for back-compat

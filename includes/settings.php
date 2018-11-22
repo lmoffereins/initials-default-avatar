@@ -155,7 +155,7 @@ function initials_default_avatar_admin_setting_service_options( $current = '' ) 
 	$current = $current ? initials_default_avatar_get_service( $current ) : false;
 
 	// Define sample avatar details
-	$details = initials_default_avatar_get_avatar_details( 0, _x( 'Sample', 'default avatar display name', 'initials-default-avatar' ) );
+	$details = initials_default_avatar_get_avatar_details();
 	$args    = array( 'size' => 100 );
 
 	// Loop all services if they have options defined
