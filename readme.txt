@@ -40,6 +40,11 @@ This plugin is not hosted in the official WordPress repository. Instead, updatin
 
 == Changelog ==
 
+= 2.0.1 =
+* Fixed a bug where the wrong settings were used for setting up the network default avatar
+* Fixed a bug where the sample avatar had no initials
+* Fixed a bug where the network settings interface did not respond
+
 = 2.0.0 =
 * Added network option to set the Initials avatar as the avatar default for your multisite sites
 * Added placeholder service: Fakeimg.pl
