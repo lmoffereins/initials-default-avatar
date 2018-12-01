@@ -763,6 +763,11 @@ function initials_default_avatar_get_avatar_url( $details, $args, $service = '' 
 		}
 	}
 
+	// Require secure protocol when using SSL
+	if ( is_ssl() ) {
+		$url = str_replace( 'http://', 'https://', $url );
+	}
+
 	/**
 	 * Filter the constructed avatar service url
 	 *
