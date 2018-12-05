@@ -13,7 +13,7 @@
  * Plugin URI:        https://github.com/lmoffereins/initials-default-avatar
  * Author:            Laurens Offereins
  * Author URI:        https://github.com/lmoffereins
- * Version:           2.0.1
+ * Version:           2.0.2
  * Text Domain:       initials-default-avatar
  * Domain Path:       /languages/
  * GitHub Plugin URI: lmoffereins/initials-default-avatar
@@ -134,7 +134,7 @@ final class Initials_Default_Avatar {
 
 		/** Versions **********************************************************/
 
-		$this->version      = '2.0.1';
+		$this->version      = '2.0.2';
 		$this->db_version   = 20181011;
 
 		/** Paths *************************************************************/
