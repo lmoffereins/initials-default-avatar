@@ -40,6 +40,9 @@ This plugin is not hosted in the official WordPress repository. Instead, updatin
 
 == Changelog ==
 
+= 2.0.2 =
+* Fixed avatar urls for sites that use ssl
+
 = 2.0.1 =
 * Fixed a bug where the wrong settings were used for setting up the network default avatar
 * Fixed a bug where the sample avatar had no initials
