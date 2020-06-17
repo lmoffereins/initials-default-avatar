@@ -201,9 +201,15 @@ class Initials_Default_Avatar_Admin {
 		if ( ! current_user_can( 'activate_plugins' ) || get_transient( $this->gravatar_notice ) )
 			return;
 
+		// Setup Gravatar url
+		$user       = get_userdata( get_current_user_id() );
+		$email_hash = md5( strtolower( trim( $user->user_email ) ) );
+		$url        = is_ssl()
+			? sprintf( 'https://secure.gravatar.com/avatar/%s?d=404', $email_hash )
+			: sprintf( 'http://%d.gravatar.com/avatar/%s?d=404', hexdec( $email_hash[0] ) % 3, $email_hash );
+
 		// Check Gravatar.com for a response
-		$user     = get_userdata( get_current_user_id() );
-		$response = wp_remote_head( sprintf( 'http://%d.gravatar.com/avatar/%s?d=404', hexdec( $user->user_email ) % 2, md5( $user->user_email ) ) );
+		$response = wp_remote_head( $url );
 
 		// Connection failed, hook the admin notice
 		if ( $response && is_wp_error( $response ) ) {
