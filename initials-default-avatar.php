@@ -560,6 +560,11 @@ final class Initials_Default_Avatar {
 	 */
 	private function _get_avatar_owner( $id_or_email, $setup = false ) {
 
+		// Get ID from user object
+		if ( is_a( $id_or_email, 'WP_User' ) ) {
+			$id_or_email = $id_or_email->ID;
+		}
+
 		// Find identifier in owners list
 		$id_or_emails = wp_list_pluck( $this->owners, 'id_or_email' );
 		$found        = $id_or_emails ? array_search( $id_or_email, $id_or_emails ) : false;
