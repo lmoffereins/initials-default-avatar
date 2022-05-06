@@ -40,6 +40,9 @@ This plugin is not hosted in the official WordPress repository. Instead, updatin
 
 == Changelog ==
 
+= 2.0.3 =
+* Fixed a bug where getting the avatar's owner did not handle user objects
+
 = 2.0.2 =
 * Fixed avatar urls for sites that use ssl
 
