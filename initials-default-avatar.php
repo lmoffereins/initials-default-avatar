@@ -565,6 +565,11 @@ final class Initials_Default_Avatar {
 			$id_or_email = $id_or_email->ID;
 		}
 
+		// Get ID from comment object
+		if ( is_a( $id_or_email, 'WP_Comment' ) ) {
+			$id_or_email = $id_or_email->user_id ?: $id_or_email->comment_author_email;
+		}
+
 		// Find identifier in owners list
 		$id_or_emails = wp_list_pluck( $this->owners, 'id_or_email' );
 		$found        = $id_or_emails ? array_search( $id_or_email, $id_or_emails ) : false;
