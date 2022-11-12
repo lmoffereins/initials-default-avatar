@@ -509,8 +509,8 @@ function initials_default_avatar_get_avatar_data( $args, $id_or_email ) {
 		 * ... when a valid gravatar was found
 		 *
 		 * We need to check if we're not going to unintentionally overwrite a
-		 * vallid gravatar. This is done by calling the Gravatar service once
-		 * to see whether the account is recognised and returns a valid response.
+		 * valid gravatar. This is done by calling the Gravatar service once to
+		 * see whether the account is recognised and returns a valid response.
 		 */
 		} elseif ( $args['found_avatar'] && initials_default_avatar_is_valid_gravatar( $args['url'] ) ) {
 			$bail = true;

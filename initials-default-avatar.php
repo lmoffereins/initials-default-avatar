@@ -65,7 +65,7 @@ final class Initials_Default_Avatar {
 	private $avatars = array();
 
 	/**
-	 * The actvive placeholder service name
+	 * The active service name
 	 *
 	 * @since 1.0.0
 	 * @var bool|string
