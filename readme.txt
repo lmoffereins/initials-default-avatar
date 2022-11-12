@@ -40,6 +40,10 @@ This plugin is not hosted in the official WordPress repository. Instead, updatin
 
 == Changelog ==
 
+= 2.0.4 =
+* Fixed a bug where getting the avatar's owner did not handle comment objects
+* Fixed a bug where avatars would be misidentified as the sample avatar
+
 = 2.0.3 =
 * Fixed a bug where getting the avatar's owner did not handle user objects
 
