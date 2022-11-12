@@ -206,10 +206,11 @@ final class Initials_Default_Avatar {
 		add_action( 'initials_default_avatar_register_services', array( $this, 'register_services' ) );
 
 		// Settings
-		add_filter( 'avatar_defaults',                  array( $this, 'avatar_defaults'       )        );
-		add_filter( 'pre_option_show_avatars',          array( $this, 'get_show_avatars'      ), 99    );
-		add_filter( 'pre_option_avatar_default',        array( $this, 'get_avatar_default'    ), 99    );
-		add_filter( 'pre_update_option_avatar_default', array( $this, 'update_avatar_default' ), 10, 2 );
+		add_filter( 'thread_comments_depth_max',        array( $this, 'identify_sample_avatar' )        );
+		add_filter( 'avatar_defaults',                  array( $this, 'avatar_defaults'        )        );
+		add_filter( 'pre_option_show_avatars',          array( $this, 'get_show_avatars'       ), 99    );
+		add_filter( 'pre_option_avatar_default',        array( $this, 'get_avatar_default'     ), 99    );
+		add_filter( 'pre_update_option_avatar_default', array( $this, 'update_avatar_default'  ), 10, 2 );
 	}
 
 	/** Plugin **********************************************************/
@@ -601,6 +602,24 @@ final class Initials_Default_Avatar {
 	}
 
 	/**
+	 * Identify the sample avatar during an arbitrary filter before sample avatars are displayed
+	 *
+	 * @since 2.0.4
+	 *
+	 * @param  int $input Input value
+	 * @return int Input value
+	 */
+	public function identify_sample_avatar( $input ) {
+
+		// On the Discussion settings page, identify the sample avatar is coming up
+		if ( function_exists( 'get_current_screen' ) && 'options-discussion' === get_current_screen()->id ) {
+			$this->is_sample = true;
+		}
+
+		return $input;
+	}
+
+	/**
 	 * Add Initials to the default avatar alternatives
 	 *
 	 * @since 1.0.0
@@ -612,9 +631,6 @@ final class Initials_Default_Avatar {
 
 		// Add our avatar option
 		$defaults[ initials_default_avatar_get_avatar_key() ] = __( 'Initials (Generated)', 'initials-default-avatar' );
-
-		// Register flag to signal the sample avatar
-		$this->is_sample = true;
 
 		return $defaults;
 	}
